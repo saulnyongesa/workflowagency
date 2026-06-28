@@ -1,0 +1,503 @@
+PHASE 0: DISCOVERY AND FINAL REQUIREMENTS
+=========================================
+
+Document date: 2026-06-28
+Project: Workflow Agency
+Status: In progress
+
+
+1. PURPOSE OF PHASE 0
+---------------------
+
+Phase 0 is where we lock the business rules before development starts. This phase protects the project from costly rebuilds later, especially around money, activation, referrals, job rewards, withdrawals, and M-Pesa.
+
+The output of Phase 0 should be:
+
+- Final requirements checklist.
+- Approved sitemap.
+- Approved financial rules.
+- Approved UI/design direction.
+- Approved PageSpeed and mobile performance targets.
+- Confirmed M-Pesa setup details.
+- Confirmed development order for Phase 1.
+
+
+2. DESIGN DIRECTION
+-------------------
+
+Approved direction:
+
+Build a modern AI-work marketplace inspired by Outlier AI and Handshake AI.
+
+The system should feel:
+
+- Clean.
+- Trusted.
+- Fast.
+- Mobile-first.
+- Professional.
+- Job/opportunity focused.
+
+Design principles:
+
+- Do not copy Outlier or Handshake branding, logos, assets, or exact layouts.
+- Use a unique Workflow Agency identity.
+- Prefer light professional pages for public/job pages.
+- Use dark/navy accent areas only where they help the dashboard or brand feel.
+- Make jobs the main product experience.
+- Make earnings and wallet data clear, but avoid exaggerated income promises.
+
+Recommended visual theme:
+
+- Background: white or soft off-white.
+- Primary text: deep navy.
+- Accent: blue/teal.
+- Success: green.
+- Warning: amber.
+- Danger: red.
+- Cards: clean, low-radius, fast-loading.
+- Navigation: mobile bottom navigation plus desktop sidebar/topbar.
+
+
+3. PROPOSED SITEMAP
+-------------------
+
+Public pages:
+
+- Home / landing page
+- About
+- How it works
+- Available opportunities preview
+- FAQ
+- Terms of service
+- Privacy policy
+- Login
+- Register
+
+User pages:
+
+- Dashboard
+- Activate account
+- Jobs / opportunities
+- Job detail
+- Job submission
+- My jobs
+- Wallet
+- Deposit / recharge
+- Withdraw
+- Transaction history
+- Referrals / team
+- Product store
+- My products / downloads
+- Support
+- Profile
+
+Admin pages:
+
+- Admin overview
+- Users
+- Finance settings
+- Wallet ledger
+- M-Pesa transactions
+- Withdrawals
+- Jobs
+- Job submissions
+- Referrals
+- Products
+- Reports
+- Audit logs
+- Support tickets
+
+
+4. FINANCIAL RULES TO CONFIRM
+-----------------------------
+
+These are the most important decisions. Development should not continue into wallet/payment code until these are approved.
+
+4.1 Activation fee
+
+Question:
+
+- What is the starting activation fee?
+
+Recommended default:
+
+- Admin can set activation fee from dashboard.
+- No hard-coded fee in code.
+
+Decision:
+
+- Pending client confirmation.
+
+4.2 Activation balance behavior
+
+Question:
+
+- When the activation fee appears in the user's balance, is it withdrawable, non-withdrawable platform credit, or partly withdrawable?
+
+Recommended safest default:
+
+- Mixed or non-withdrawable platform credit.
+
+Reason:
+
+- If the full activation fee is withdrawable and referral bonuses are also paid, the business can owe more than it receives.
+
+Decision:
+
+- Pending client confirmation.
+
+4.3 Referral bonus
+
+Questions:
+
+- How much does the referrer earn when a referred user activates?
+- Is the referral bonus fixed or percentage-based?
+- Is it one level only, or multiple levels?
+- Should bonus be pending for some hours/days before it becomes withdrawable?
+
+Recommended default:
+
+- One-level referral bonus.
+- Fixed amount set by admin.
+- Bonus starts as pending.
+- Release after fraud review or delay.
+
+Decision:
+
+- Pending client confirmation.
+
+4.4 Minimum withdrawal
+
+Question:
+
+- What is the minimum withdrawal amount?
+
+Recommended default:
+
+- Admin-controlled setting.
+- User cannot request withdrawal below this amount.
+
+Decision:
+
+- Pending client confirmation.
+
+4.5 Withdrawal method
+
+Question:
+
+- Should launch start with manual withdrawals, Daraja B2C automated withdrawals, or both?
+
+Recommended default:
+
+- Start with manual withdrawals plus admin audit trail.
+- Add Daraja B2C once production credentials and Safaricom approval are confirmed.
+
+Decision:
+
+- Pending client confirmation.
+
+4.6 Platform reserve rule
+
+Question:
+
+- How much cash buffer should the admin keep before approving withdrawals?
+
+Recommended default:
+
+- Reserve ratio target: 1.10 to 1.25.
+- Minimum platform cash buffer set by admin.
+- Withdrawal approval uses after-payout solvency check.
+
+Decision:
+
+- Pending client confirmation.
+
+
+5. JOB RULES TO CONFIRM
+-----------------------
+
+5.1 Starting job categories
+
+Recommended launch categories:
+
+- Surveys
+- Watch and earn
+- Trivia / quizzes
+- Blogging / social proof
+- App and game testing
+- Website feedback
+- Data entry / tagging
+- Product reviews
+- Paid chat sessions
+- Product affiliate tasks
+
+Decision:
+
+- Pending client confirmation.
+
+5.2 Job slot rules
+
+Recommended default:
+
+- Admin sets worker limit.
+- Each claim reserves one slot.
+- When slots are full, job auto-closes.
+- Admin can increase worker limit.
+- Admin can clone/reactivate the job as a new opportunity.
+
+Decision:
+
+- Approved unless client changes it.
+
+5.3 Job reward approval
+
+Recommended default:
+
+- Rewards start as pending.
+- Admin or reviewer approves proof.
+- Approved reward posts to available or pending balance based on admin setting.
+- Rejected jobs require a rejection reason.
+
+Decision:
+
+- Pending client confirmation.
+
+5.4 Daily limits
+
+Recommended default:
+
+- Admin can set max jobs per user per day.
+- Admin can set max watch-and-earn rewards per user per day.
+- Admin can pause job types if payout risk is high.
+
+Decision:
+
+- Pending client confirmation.
+
+
+6. M-PESA REQUIREMENTS TO CONFIRM
+---------------------------------
+
+Required information:
+
+- M-Pesa environment: sandbox or production.
+- Consumer key.
+- Consumer secret.
+- Business short code.
+- Passkey.
+- Callback base domain.
+- STK Push callback URL.
+- C2B validation URL.
+- C2B confirmation URL.
+- B2C initiator name, if using B2C.
+- B2C security credential, if using B2C.
+- B2C result URL, if using B2C.
+- B2C timeout URL, if using B2C.
+
+Security rule:
+
+- None of these secrets should be committed to GitHub.
+- They must be stored in environment variables.
+
+Decision:
+
+- Pending client confirmation.
+
+
+7. HOSTING REQUIREMENTS
+-----------------------
+
+Preferred hosting:
+
+- Heroku.
+
+Important note:
+
+- Heroku is not fully free for Django plus Postgres.
+- The client should budget for at least a low-cost dyno plus a Heroku Postgres plan.
+
+Recommended production services:
+
+- Heroku web dyno.
+- Heroku Postgres.
+- Cloudinary free plan for media at launch.
+- WhiteNoise for static files.
+- Optional Redis/worker later if background tasks grow.
+
+Decision:
+
+- Heroku remains planned hosting unless client changes it.
+
+
+8. PAGESPEED AND PERFORMANCE REQUIREMENTS
+-----------------------------------------
+
+Target:
+
+- PageSpeed mobile: 90+ where practical.
+- PageSpeed desktop: 95+ where practical.
+- LCP: 2.5 seconds or faster.
+- INP: 200 milliseconds or faster.
+- CLS: 0.1 or lower.
+
+Performance rules:
+
+- Use Django server-rendered templates.
+- Use Bootstrap carefully.
+- Avoid heavy frontend frameworks.
+- Keep JavaScript page-specific and small.
+- Compress images through Cloudinary.
+- Lazy-load below-the-fold images.
+- Reserve image dimensions to prevent layout shift.
+- Paginate large lists.
+- Add database indexes early.
+- Use select_related and prefetch_related.
+- Cache expensive dashboard reports.
+- Run PageSpeed checks before launch.
+
+Pages to test:
+
+- Landing page.
+- Login.
+- Register.
+- Dashboard.
+- Jobs list.
+- Job detail.
+- Wallet.
+- Referral page.
+- Product store.
+- Admin dashboard.
+
+Decision:
+
+- Performance targets approved unless client changes them.
+
+
+9. SECURITY REQUIREMENTS
+------------------------
+
+Required security decisions:
+
+- Should withdrawals require OTP?
+- Should phone verification be required before withdrawal?
+- Should KYC be required above a certain withdrawal amount?
+- How many failed login attempts should trigger a temporary lock?
+- Should users be blocked from changing phone number without support approval?
+
+Recommended defaults:
+
+- Phone number cannot be changed freely after activation.
+- Withdrawal requires active account and valid phone.
+- Admin can flag/suspend users.
+- Suspicious accounts cannot withdraw.
+- Admin wallet adjustments require reason.
+- All finance actions are audited.
+
+Decision:
+
+- Pending client confirmation.
+
+
+10. USER EXPERIENCE REQUIREMENTS
+--------------------------------
+
+Mobile-first pages:
+
+- Register.
+- Login.
+- Activate.
+- Dashboard.
+- Jobs list.
+- Job detail.
+- Wallet.
+- Withdraw.
+- Referrals.
+- Profile.
+
+UX rules:
+
+- No confusing earning promises.
+- Every job shows reward, status, slots, and proof requirement.
+- Every withdrawal explains minimum amount and current eligibility.
+- Every M-Pesa payment shows pending, success, or failed state.
+- Locked users see clear activation instructions.
+- Rejected job submissions show reason.
+- Admin reports are practical, not decorative.
+
+Decision:
+
+- Approved unless client changes it.
+
+
+11. PHASE 0 CLIENT QUESTIONS
+----------------------------
+
+Answer these before Phase 1 starts:
+
+1. What brand name should appear on the system?
+2. Do you already have a logo?
+3. What activation fee should we start with?
+4. Should activation balance be withdrawable, non-withdrawable credit, or mixed?
+5. What is the referral bonus amount?
+6. Will referrals be one-level only or multiple levels?
+7. What minimum withdrawal amount should admin set first?
+8. Will launch withdrawals be manual, B2C, or both?
+9. Should withdrawals require OTP or phone verification?
+10. Which job categories should launch first?
+11. Who will review submitted jobs?
+12. Should small jobs be auto-approved or all reviewed manually?
+13. Do you have live M-Pesa credentials ready?
+14. What domain will be used for production?
+15. Should the first UI be mostly light theme, dark theme, or mixed?
+
+
+12. PROPOSED DEFAULT DECISIONS
+------------------------------
+
+If the client wants us to proceed quickly, use these defaults:
+
+- Theme: modern light AI-job marketplace with navy/teal accents.
+- Activation fee: admin setting, no hard-coded value.
+- Activation credit: mixed by default, with admin controlling withdrawable and non-withdrawable portions.
+- Referral bonus: one-level fixed bonus, pending before release.
+- Withdrawals: manual first, B2C later.
+- Minimum withdrawal: admin setting.
+- Job rewards: manual review first.
+- Job slots: strict worker limit with row locking.
+- PageSpeed: optimize from the beginning, test before launch.
+- Background tasks: no finance tasks in unsafe Python threads.
+
+
+13. PHASE 0 EXIT CHECKLIST
+--------------------------
+
+Phase 0 is complete when:
+
+- Brand name is confirmed.
+- Theme direction is confirmed.
+- Sitemap is approved.
+- Activation fee behavior is approved.
+- Referral bonus rules are approved.
+- Minimum withdrawal rule is approved.
+- Withdrawal method is approved.
+- Initial job categories are approved.
+- M-Pesa environment and credentials plan is confirmed.
+- Hosting plan is confirmed.
+- PageSpeed targets are approved.
+- Security rules are approved.
+- Phase 1 can begin without guessing key business rules.
+
+
+14. NEXT ACTION AFTER PHASE 0
+-----------------------------
+
+After the client answers the pending questions, move to Phase 1:
+
+- Create Django project.
+- Create apps.
+- Configure database and settings.
+- Build base templates.
+- Create custom user model.
+- Run initial migrations.
+

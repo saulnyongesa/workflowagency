@@ -1,0 +1,853 @@
+WORKFLOW AGENCY DEVELOPMENT PLAN
+================================
+
+Document date: 2026-06-28
+Stack: Django, function-based views, HTML, Bootstrap, vanilla JavaScript, PostgreSQL, Cloudinary, M-Pesa
+Design direction: modern AI-work marketplace inspired by Outlier AI and Handshake AI
+
+
+1. DESIGN DIRECTION
+-------------------
+
+We will use an AI job marketplace theme inspired by major AI-work platforms such as Outlier AI and Handshake AI.
+
+Important design rule:
+
+We can learn from their public design patterns, but we should not copy their exact brand assets, logos, illustrations, wording, or proprietary page layouts. The final product should feel modern and trusted while still having its own brand identity.
+
+Theme characteristics:
+
+- Clean, professional, mobile-first job marketplace interface.
+- Light main theme with dark/navy accent sections where needed.
+- Strong search and filtering for jobs/opportunities.
+- Opportunity cards with reward amount, category, difficulty, available slots, status, and action button.
+- Trust metrics such as total paid, active workers, open jobs, verified tasks, and payout success.
+- Simple onboarding flow: register, activate, complete profile, start earning.
+- Dashboard focused on "available jobs", "wallet", "referrals", and "next action".
+- Friendly but serious earning experience, avoiding scam-like visuals and exaggerated claims.
+- Clear payout, review, and job approval rules.
+
+Visual foundation:
+
+- Colors: white/off-white background, deep navy text, blue/teal accent, green success, amber warning, red danger.
+- Typography: clean sans-serif, readable on mobile, no tiny dashboard text.
+- Components: cards, tabs, filters, badges, progress indicators, empty states, alerts, tables, drawer/offcanvas navigation.
+- Icons: use Bootstrap Icons or lucide-style SVG icons through a consistent icon set.
+- Mobile navigation: bottom nav for Dashboard, Jobs, Wallet, Referrals, Profile.
+- Desktop navigation: left sidebar or top navigation depending on final UI tests.
+
+
+2. PERFORMANCE AND PAGESPEED TARGETS
+------------------------------------
+
+The site must be planned for strong PageSpeed Insights results from the beginning, especially on mobile.
+
+Target scores:
+
+- PageSpeed/Lighthouse Performance: 90+ on mobile, 95+ on desktop where practical.
+- Accessibility: 90+.
+- Best Practices: 90+.
+- SEO: 90+ for public pages.
+
+Core Web Vitals targets:
+
+- LCP: 2.5 seconds or faster.
+- INP: 200 milliseconds or faster.
+- CLS: 0.1 or lower.
+
+Pages to test in PageSpeed Insights:
+
+- Landing page.
+- Register page.
+- Login page.
+- User dashboard.
+- Jobs list.
+- Job detail/submission page.
+- Wallet/deposit page.
+- Referral page.
+- Product store.
+- Admin dashboard.
+
+Performance rules:
+
+- Build mobile-first and avoid heavy JavaScript frameworks.
+- Use server-rendered Django templates.
+- Use Bootstrap selectively; remove unused CSS in production if possible.
+- Defer non-critical JavaScript.
+- Keep custom JavaScript small and page-specific.
+- Use compressed and responsive Cloudinary images.
+- Lazy-load below-the-fold images.
+- Set width and height on images to prevent layout shifts.
+- Use pagination instead of loading huge lists.
+- Use database indexes on search, job status, user, wallet, payment, and referral fields.
+- Use select_related/prefetch_related to avoid N+1 queries.
+- Cache safe dashboard summaries where useful.
+- Use WhiteNoise compressed static files on Heroku.
+- Minify CSS and JavaScript for production.
+- Avoid autoplay video, large hero animations, and decorative heavy backgrounds.
+- Keep first screen useful and fast.
+
+
+3. PHASE 0: DISCOVERY AND FINAL REQUIREMENTS
+--------------------------------------------
+
+Goal:
+
+Confirm the exact business rules before code starts.
+
+Tasks:
+
+- Review sample UI screenshots.
+- Confirm brand name, logo, colors, and final visual direction.
+- Confirm activation fee rules.
+- Confirm whether activation credit is withdrawable, non-withdrawable, or mixed.
+- Confirm referral levels and bonus amounts.
+- Confirm minimum withdrawal amount.
+- Confirm M-Pesa short code, passkey, callback domain, and environment.
+- Confirm whether withdrawals will start as manual or Daraja B2C.
+- Confirm job categories and starting payout ranges.
+- Confirm admin roles and permissions.
+- Confirm terms, privacy, withdrawal policy, and job approval policy.
+
+Deliverables:
+
+- Final requirements checklist.
+- Approved sitemap.
+- Approved financial rules.
+- Approved UI direction.
+
+Exit criteria:
+
+- No unclear finance rule remains.
+- Client understands hosting costs and M-Pesa requirements.
+
+
+4. PHASE 1: PROJECT SETUP
+-------------------------
+
+Goal:
+
+Create a clean Django foundation.
+
+Tasks:
+
+- Create new Django project.
+- Create apps: accounts, core, wallets, payments, jobs, referrals, products, support, reports.
+- Configure PostgreSQL.
+- Configure environment variables.
+- Configure Bootstrap, base template, static files, and WhiteNoise.
+- Configure Cloudinary.
+- Add custom user model before first migration.
+- Add project-wide error pages.
+- Add basic logging.
+- Add development, staging, and production settings structure.
+
+Deliverables:
+
+- Running Django project.
+- Base layout.
+- Clean app structure.
+- Initial migrations.
+
+Exit criteria:
+
+- Project runs locally.
+- Admin login works.
+- Static files load correctly.
+
+
+5. PHASE 2: DESIGN SYSTEM AND FRONTEND SHELL
+--------------------------------------------
+
+Goal:
+
+Build the reusable frontend foundation using the AI-work marketplace style.
+
+Tasks:
+
+- Create base layout.
+- Create auth layout.
+- Create user dashboard layout.
+- Create admin dashboard layout.
+- Create reusable components:
+  - job cards
+  - wallet cards
+  - stat cards
+  - filter bars
+  - tabs
+  - badges
+  - alerts
+  - empty states
+  - mobile bottom navigation
+  - offcanvas menu
+- Build responsive dashboard shell.
+- Build landing page with clear trust metrics and job marketplace positioning.
+- Build dark/light safe color tokens.
+
+Deliverables:
+
+- `base.html`.
+- Component partials.
+- CSS variables/theme file.
+- Mobile and desktop layouts.
+
+Exit criteria:
+
+- UI works at 360px, 390px, 430px, 768px, 1024px, and desktop widths.
+- No text overlaps.
+- Navigation is clear on mobile.
+- First PageSpeed check on static landing page reaches target or has clear fixes.
+
+
+6. PHASE 3: ACCOUNTS, AUTHENTICATION, AND PROFILE
+-------------------------------------------------
+
+Goal:
+
+Let users register and login with username, phone number, or email.
+
+Tasks:
+
+- Build custom user model.
+- Add phone normalization.
+- Add referral code generation.
+- Add custom authentication backend.
+- Build register page.
+- Build login page.
+- Build logout.
+- Build profile page.
+- Build password change.
+- Add account statuses: locked, active, flagged, suspended.
+- Add admin user management.
+- Add rate limiting for login/register if package choice is approved.
+
+Deliverables:
+
+- User registration.
+- Multi-identifier login.
+- Profile management.
+- Admin user controls.
+
+Exit criteria:
+
+- Users can login by username, email, or phone.
+- Locked users cannot access earning features.
+- Suspended users cannot use the system.
+
+
+7. PHASE 4: ADMIN SETTINGS AND AUDIT LOGS
+-----------------------------------------
+
+Goal:
+
+Allow admin to control finance and platform settings safely.
+
+Tasks:
+
+- Create site settings model.
+- Create finance settings model.
+- Create feature toggles.
+- Add activation fee setting.
+- Add referral bonus setting.
+- Add minimum withdrawal setting.
+- Add job payout limits.
+- Add payout enable/disable toggle.
+- Add deposit enable/disable toggle.
+- Add audit log model.
+- Audit all finance setting changes.
+
+Deliverables:
+
+- Admin settings panel.
+- Audit logs.
+
+Exit criteria:
+
+- Every finance setting change records who changed it, when, and old/new values.
+
+
+8. PHASE 5: WALLET AND LEDGER
+-----------------------------
+
+Goal:
+
+Create the financial foundation before integrating payments.
+
+Tasks:
+
+- Create Wallet model.
+- Create immutable LedgerTransaction model.
+- Add wallet balance buckets:
+  - available
+  - pending
+  - locked
+  - withdrawn total
+  - earned total
+- Add wallet posting service.
+- Add idempotency protection.
+- Add admin adjustment flow with reason.
+- Add wallet history page.
+- Add tests for posting, duplicate prevention, and balance integrity.
+
+Deliverables:
+
+- Wallet system.
+- Ledger system.
+- Wallet history UI.
+- Admin adjustment UI.
+
+Exit criteria:
+
+- No direct balance editing outside wallet service.
+- Duplicate transaction keys cannot double-credit users.
+
+
+9. PHASE 6: ACTIVATION AND REFERRALS
+------------------------------------
+
+Goal:
+
+Build the locked-to-active user journey.
+
+Tasks:
+
+- Build activation page.
+- Create activation payment request model.
+- Credit user according to activation credit mode.
+- Connect referral code to registering user.
+- Add referral tree.
+- Add referral bonus pending/available flow.
+- Add referral dashboard.
+- Add referral fraud checks.
+
+Deliverables:
+
+- Activation workflow.
+- Referral dashboard.
+- Referral bonus logic.
+
+Exit criteria:
+
+- New users start locked.
+- Successful activation unlocks account.
+- Referral bonus posts once and only when rules are satisfied.
+
+
+10. PHASE 7: M-PESA DEPOSITS
+----------------------------
+
+Goal:
+
+Accept activation and recharge payments through M-Pesa.
+
+Tasks:
+
+- Refactor existing M-Pesa reference code into payments app.
+- Move all M-Pesa secrets into environment variables.
+- Add STK Push initiation.
+- Add STK callback.
+- Add C2B validation and confirmation callbacks.
+- Store raw callback payloads.
+- Add idempotent payment processing.
+- Add payment status polling for frontend.
+- Add payment history page.
+- Add admin M-Pesa transaction view.
+- Add reconciliation command.
+
+Deliverables:
+
+- STK Push deposits.
+- C2B fallback.
+- M-Pesa admin report.
+- Reconciliation command.
+
+Exit criteria:
+
+- Wallet is credited only from trusted callback or verified reconciliation.
+- Duplicate M-Pesa callbacks do not double-credit.
+
+
+11. PHASE 8: JOB MARKETPLACE
+----------------------------
+
+Goal:
+
+Build the core online jobs engine.
+
+Tasks:
+
+- Create job categories.
+- Create jobs with title, description, instructions, reward, worker limit, proof type, and expiry.
+- Build jobs list with search and filters.
+- Build job detail page.
+- Build claim job action using database transaction and row locking.
+- Build proof submission forms.
+- Build admin review queue.
+- Add approve/reject actions.
+- Post job rewards through wallet ledger.
+- Add clone/reactivate job action.
+- Add job history page.
+- Add daily claim limits and anti-spam checks.
+
+Deliverables:
+
+- Job marketplace.
+- Job claim system.
+- Submission review.
+- Reward approval.
+
+Exit criteria:
+
+- Worker limit cannot be exceeded.
+- Full jobs close automatically.
+- Admin can clone/reactivate jobs.
+- Approved rewards post once.
+
+
+12. PHASE 9: JOB TYPES AND CONTENT MODULES
+------------------------------------------
+
+Goal:
+
+Add the specific earning categories.
+
+Tasks:
+
+- Surveys.
+- Watch-and-earn ads.
+- Trivia/quizzes.
+- Blogging/social proof jobs.
+- App/game testing.
+- Website feedback.
+- Data entry/tagging.
+- Product reviews.
+- Paid chat session records.
+- Product affiliate commissions.
+
+Deliverables:
+
+- Job-type templates.
+- Proof forms per job type.
+- Admin payout rules per type.
+
+Exit criteria:
+
+- Admin can create different job types without code changes for every new task.
+- Each type has clear proof and approval rules.
+
+
+13. PHASE 10: WITHDRAWALS
+-------------------------
+
+Goal:
+
+Let eligible users request payouts safely.
+
+Tasks:
+
+- Build withdrawal request page.
+- Enforce minimum withdrawal amount.
+- Enforce account status/KYC/fraud rules.
+- Check wallet available balance.
+- Add after-payout solvency check.
+- Lock requested funds.
+- Build admin approval queue.
+- Add manual payout workflow.
+- Add B2C payout integration when credentials are ready.
+- Add B2C result/timeout callbacks.
+- Release funds on failure or rejection.
+- Add withdrawal history page.
+
+Deliverables:
+
+- Withdrawal requests.
+- Admin approval.
+- Manual payout support.
+- B2C payout support if ready.
+
+Exit criteria:
+
+- Users below minimum withdrawal cannot request payout.
+- Platform cannot approve withdrawals that fail solvency rules.
+- Failed payouts return funds correctly.
+
+
+14. PHASE 11: PRODUCTS AND COMMISSIONS
+--------------------------------------
+
+Goal:
+
+Build digital products, downloads, and product commissions.
+
+Tasks:
+
+- Create product categories.
+- Create products.
+- Upload images/files to Cloudinary.
+- Build product store.
+- Build product detail page.
+- Build purchase flow.
+- Build user library/downloads page.
+- Add product commission rules.
+- Add commission release delay.
+
+Deliverables:
+
+- Product store.
+- Product library.
+- Product commission ledger.
+
+Exit criteria:
+
+- Purchases are recorded.
+- Products can be disabled without deleting user purchases.
+- Commissions post only after purchase confirmation.
+
+
+15. PHASE 12: ADMIN DASHBOARD AND FINANCE REPORTING
+---------------------------------------------------
+
+Goal:
+
+Give admin visibility into revenue, liabilities, and risk.
+
+Tasks:
+
+- Build admin overview dashboard.
+- Show deposits, withdrawals, rewards, commissions, and referral bonuses.
+- Show confirmed cash.
+- Show wallet liabilities.
+- Show pending withdrawal requests.
+- Show reserve ratio.
+- Show after-payout safe withdrawal capacity.
+- Show job profitability.
+- Show referral cost.
+- Show M-Pesa failures.
+- Add CSV exports.
+- Add finance snapshots.
+
+Deliverables:
+
+- Admin dashboard.
+- Finance reports.
+- Export tools.
+
+Exit criteria:
+
+- Admin can see whether withdrawals are safe before approving them.
+- Admin can detect if liabilities are larger than available cash.
+
+
+16. PHASE 13: SUPPORT, NOTIFICATIONS, AND POLICIES
+--------------------------------------------------
+
+Goal:
+
+Make the system understandable and supportable.
+
+Tasks:
+
+- Add announcements.
+- Add support tickets or contact form.
+- Add WhatsApp group link management.
+- Add FAQ pages.
+- Add terms of service.
+- Add privacy policy.
+- Add withdrawal policy.
+- Add job reward policy.
+- Add referral policy.
+- Add email/SMS notification hooks where needed.
+
+Deliverables:
+
+- Support pages.
+- Policy pages.
+- Notification helpers.
+
+Exit criteria:
+
+- Users can understand why a job, payment, or withdrawal is pending/rejected.
+
+
+17. PHASE 14: SECURITY HARDENING
+--------------------------------
+
+Goal:
+
+Protect users, admin, and wallet data.
+
+Tasks:
+
+- Confirm DEBUG=False in production.
+- Configure secure cookies.
+- Configure HTTPS settings.
+- Protect admin routes.
+- Add login/register rate limits.
+- Add CSRF protection to forms.
+- Add validation for all payment inputs.
+- Add fraud flags for duplicate phone/device/IP patterns.
+- Add admin action audit logs.
+- Review all environment variables.
+- Remove hard-coded secrets and old project domains.
+- Add database constraints and indexes.
+
+Deliverables:
+
+- Security checklist.
+- Fraud checks.
+- Production settings review.
+
+Exit criteria:
+
+- No secrets in repository.
+- Finance actions are audited.
+- Wallet and payment endpoints are idempotent.
+
+
+18. PHASE 15: PAGESPEED AND CORE WEB VITALS OPTIMIZATION
+--------------------------------------------------------
+
+Goal:
+
+Make the system fast enough for mobile users and strong PageSpeed Insights results.
+
+Tasks:
+
+- Run PageSpeed Insights for public pages.
+- Run Lighthouse locally during development.
+- Optimize LCP:
+  - reduce server response time
+  - compress images
+  - use responsive Cloudinary transformations
+  - avoid oversized hero images
+  - preload only critical assets
+- Optimize INP:
+  - keep JavaScript small
+  - defer scripts
+  - avoid long main-thread tasks
+  - split page-specific JS
+- Optimize CLS:
+  - reserve image dimensions
+  - avoid late-loading banners above content
+  - avoid layout-shifting alerts
+- Optimize Django queries:
+  - add indexes
+  - paginate lists
+  - use select_related and prefetch_related
+  - cache repeated dashboard summaries
+- Optimize static assets:
+  - minify CSS/JS
+  - gzip/Brotli via WhiteNoise
+  - long cache headers for static assets
+- Optimize admin dashboard:
+  - load expensive analytics asynchronously
+  - precompute finance snapshots
+
+Deliverables:
+
+- PageSpeed report before optimization.
+- PageSpeed report after optimization.
+- Performance budget document.
+
+Exit criteria:
+
+- Priority pages score 90+ where practical.
+- LCP, INP, and CLS are within good thresholds.
+- Any remaining performance issue has a documented reason and fix plan.
+
+
+19. PHASE 16: TESTING AND QUALITY ASSURANCE
+-------------------------------------------
+
+Goal:
+
+Catch bugs before launch.
+
+Tasks:
+
+- Write tests for authentication.
+- Write tests for activation.
+- Write tests for M-Pesa callback idempotency.
+- Write tests for referral bonus posting.
+- Write tests for wallet ledger posting.
+- Write tests for job claim concurrency.
+- Write tests for withdrawal rules.
+- Write tests for admin settings audit.
+- Test mobile layouts manually.
+- Test on Chrome Android viewport sizes.
+- Test slow network behavior.
+- Test failed M-Pesa responses.
+- Test duplicate callbacks.
+
+Deliverables:
+
+- Test suite.
+- QA checklist.
+- Bug fix log.
+
+Exit criteria:
+
+- Critical finance tests pass.
+- Main user flows pass on mobile.
+- No known blocker remains.
+
+
+20. PHASE 17: DEPLOYMENT
+------------------------
+
+Goal:
+
+Deploy safely to production.
+
+Tasks:
+
+- Prepare Heroku app.
+- Configure Heroku Postgres.
+- Configure Cloudinary.
+- Configure environment variables.
+- Configure allowed hosts and callback domain.
+- Run migrations.
+- Collect static files.
+- Create superuser.
+- Register M-Pesa callback URLs.
+- Configure domain and SSL.
+- Run smoke tests.
+- Run PageSpeed test on production URLs.
+
+Deliverables:
+
+- Live production site.
+- Deployment checklist.
+- Admin credentials delivered securely.
+
+Exit criteria:
+
+- Site is live on HTTPS.
+- M-Pesa callbacks reach the site.
+- User registration, activation, jobs, wallet, and admin dashboard work.
+
+
+21. PHASE 18: PILOT LAUNCH
+--------------------------
+
+Goal:
+
+Launch with limited users before public release.
+
+Tasks:
+
+- Invite small test group.
+- Add limited jobs.
+- Process small activation/deposit tests.
+- Process small withdrawal tests.
+- Monitor logs.
+- Monitor PageSpeed.
+- Monitor M-Pesa callbacks.
+- Monitor wallet liabilities.
+- Gather user feedback.
+- Fix issues.
+
+Deliverables:
+
+- Pilot report.
+- Fix list.
+- Updated launch readiness checklist.
+
+Exit criteria:
+
+- No finance mismatch.
+- No major mobile UX issue.
+- Admin can manage users, jobs, and payouts confidently.
+
+
+22. PHASE 19: PUBLIC LAUNCH
+---------------------------
+
+Goal:
+
+Open the system to normal users.
+
+Tasks:
+
+- Publish live jobs.
+- Enable activation payments.
+- Enable withdrawals only if finance reserve is ready.
+- Monitor registration and activation conversion.
+- Monitor job submissions.
+- Monitor fraud flags.
+- Monitor PageSpeed and server errors.
+- Export daily finance reports.
+
+Deliverables:
+
+- Public launch.
+- Daily launch reports.
+
+Exit criteria:
+
+- System runs without critical payment, wallet, or job errors.
+
+
+23. PHASE 20: POST-LAUNCH IMPROVEMENT
+--------------------------------------
+
+Goal:
+
+Improve the platform based on real usage.
+
+Tasks:
+
+- Add more job templates.
+- Improve admin reports.
+- Improve fraud detection.
+- Improve PageSpeed based on real field data.
+- Add user notifications.
+- Improve onboarding.
+- Add better product recommendations.
+- Add recurring client-funded campaigns.
+- Add real-user monitoring for Core Web Vitals if budget allows.
+
+Deliverables:
+
+- Monthly improvement plan.
+- Monthly finance report.
+- Monthly performance report.
+
+Exit criteria:
+
+- Platform growth is tied to real revenue, safe payout reserves, and good user experience.
+
+
+24. FINAL BUILD ORDER SUMMARY
+-----------------------------
+
+1. Requirements and finance rules.
+2. Django project setup.
+3. Design system and responsive frontend shell.
+4. Accounts and login.
+5. Admin settings and audit logs.
+6. Wallet and ledger.
+7. Activation and referrals.
+8. M-Pesa deposits.
+9. Job marketplace.
+10. Job types.
+11. Withdrawals.
+12. Products and commissions.
+13. Admin finance dashboard.
+14. Support and policies.
+15. Security hardening.
+16. PageSpeed optimization.
+17. Testing and QA.
+18. Production deployment.
+19. Pilot launch.
+20. Public launch and continuous improvement.
+
+
+25. REFERENCES USED FOR THIS PLAN
+----------------------------------
+
+- Outlier AI public platform: https://outlier.ai/
+- Handshake AI/career network public platform: https://joinhandshake.com/
+- Google PageSpeed Insights documentation: https://developers.google.com/speed/docs/insights/v5/about
+- Google Web Vitals guidance: https://web.dev/articles/vitals
+

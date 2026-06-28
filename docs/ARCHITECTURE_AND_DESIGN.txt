@@ -1,0 +1,1345 @@
+WORKFLOW AGENCY ARCHITECTURE AND DESIGN
+=======================================
+
+Document date: 2026-06-28
+Project type: Django, HTML, Bootstrap, vanilla JavaScript, PostgreSQL, Cloudinary, M-Pesa
+Primary target users: mobile-first users in Kenya
+Primary admin goal: manage online jobs, referrals, deposits, withdrawals, and business solvency
+
+
+1. EXECUTIVE SUMMARY
+--------------------
+
+Workflow Agency is a web platform where users can register, activate their account through M-Pesa, complete admin-managed jobs, earn approved rewards, invite referrals, buy/access products, and request withdrawals. The design is based on the sample UI, which shows a dark dashboard with wallet cards, referral tracking, product store, task categories, finance pages, and user profile pages.
+
+The most important architectural rule is this:
+
+Money shown in a user's wallet is a liability until it is spent, reversed according to written terms, or withdrawn. Admin revenue reports must never confuse wallet balances with company profit.
+
+This is especially important because the activation fee is intended to appear in full as the user's starting balance. If the full activation amount is withdrawable, the business must keep enough cash reserve to pay it. If the activation amount is only a platform credit, the UI and terms must state that clearly.
+
+
+2. CURRENT REPOSITORY CONTEXT
+-----------------------------
+
+Current files:
+
+- sample_UI/: screenshots of the desired dashboard and pages
+- mpesa_config.py: previous M-Pesa credentials/config reference
+- mpesa_utils.py: previous STK Push and C2B helper reference
+- views.py: previous webinar/payment views reference
+- README.md: GitHub/client overview
+- docs/ARCHITECTURE_AND_DESIGN.txt: this document
+
+The existing M-Pesa code should not be copied directly into production without refactoring. It currently contains hard-coded business values and domain URLs from another project context. The final build should move all credentials, short codes, callback URLs, passkeys, and environment choices into environment variables and database settings where appropriate.
+
+
+3. EXTERNAL PLATFORM FACTS VERIFIED
+-----------------------------------
+
+Heroku:
+
+- Heroku removed free dynos and free Heroku Postgres plans starting November 28, 2022.
+- Production Heroku hosting should be budgeted as a paid dyno plus paid Postgres plan.
+- Heroku Postgres Essential-0 is listed as a low-cost plan with 1 GB disk and 20 connections.
+
+Cloudinary:
+
+- Cloudinary has a free plan.
+- The free plan uses credits for transformations, storage, and bandwidth.
+- One credit equals 1,000 transformations, or 1 GB image storage, or 1 GB image bandwidth, or 1 GB video bandwidth on the free plan.
+
+Safaricom Daraja:
+
+- Daraja provides access to M-Pesa APIs for web and mobile apps.
+- The system should use STK Push and C2B for deposits and B2C for automated withdrawals once Safaricom approval and production credentials are ready.
+
+Reference URLs:
+
+- https://help.heroku.com/RSBRUH58/removal-of-heroku-free-product-plans-faq
+- https://www.heroku.com/pricing/
+- https://devcenter.heroku.com/articles/heroku-postgres-plans
+- https://cloudinary.com/documentation/billing_and_plans
+- https://developer.safaricom.co.ke/
+
+
+4. USER ROLES
+-------------
+
+Guest:
+
+- Can view public landing/login/register pages.
+- Can register with username, phone number or email, password, and optional referral code.
+
+Locked user:
+
+- Has registered but has not activated.
+- Can view activation instructions and payment page.
+- Cannot claim jobs, withdraw, access paid products, or earn normal rewards.
+
+Active user:
+
+- Has completed activation.
+- Can use dashboard, jobs, referrals, wallet, products, profile, and withdrawal request pages.
+
+Flagged user:
+
+- Account is active but restricted by fraud checks or admin action.
+- Can view account but cannot withdraw or claim selected jobs until reviewed.
+
+Suspended user:
+
+- Cannot login or cannot perform earning actions, depending on admin setting.
+
+Staff reviewer:
+
+- Reviews submitted job proof, approves/rejects rewards, handles support tickets.
+
+Finance admin:
+
+- Manages deposits, withdrawals, reconciliation, finance reports, payout approvals, and finance settings.
+
+Super admin:
+
+- Full access to users, settings, jobs, wallet adjustments, M-Pesa settings, roles, and audit logs.
+
+
+5. MAJOR DJANGO APPS
+--------------------
+
+accounts:
+
+- Custom user model.
+- Phone/email/username login.
+- Profile, referral code, country, phone verification, activation status, KYC status.
+- Account state transitions: locked, active, flagged, suspended.
+
+core:
+
+- Site settings.
+- Finance settings.
+- Feature toggles.
+- Announcements.
+- Admin audit logs.
+- Admin role helpers.
+
+wallets:
+
+- User wallets.
+- Immutable ledger entries.
+- Cached wallet balances.
+- Bonus and reward posting services.
+- Fraud holds and admin adjustments.
+
+payments:
+
+- M-Pesa STK Push deposit requests.
+- M-Pesa C2B validation and confirmation callbacks.
+- B2C withdrawal payouts.
+- Payment reconciliation.
+- Raw callback storage.
+
+jobs:
+
+- Job categories.
+- Job listing and detail pages.
+- Job claims with worker limits.
+- Job submissions and proof uploads.
+- Review and reward approval.
+- Job reactivation/cloning.
+
+referrals:
+
+- Referral tree.
+- Referral bonus rules.
+- Referral activation tracking.
+- Bonus release windows.
+
+products:
+
+- Digital products.
+- Product categories.
+- Purchases.
+- Downloads/library.
+- Product affiliate commissions.
+
+support:
+
+- Help pages.
+- Tickets.
+- WhatsApp group links.
+- Admin replies.
+
+reports:
+
+- Admin dashboard.
+- Revenue, liability, withdrawal, job, referral, and fraud reports.
+
+
+6. FUNCTION-BASED VIEW RULE
+---------------------------
+
+The user requested function-based views. The project should use function-based views by default.
+
+Recommended pattern:
+
+- Keep views thin.
+- Put business rules in service modules.
+- Put repeated queries in selectors.
+- Use forms for validation.
+- Use transactions around wallet, claim, and payout operations.
+
+Example module layout:
+
+accounts/views.py
+accounts/forms.py
+accounts/services.py
+accounts/selectors.py
+
+wallets/views.py
+wallets/services.py
+wallets/ledger.py
+wallets/selectors.py
+
+jobs/views.py
+jobs/forms.py
+jobs/services.py
+jobs/selectors.py
+
+
+7. AUTHENTICATION DESIGN
+------------------------
+
+Users should be able to login using:
+
+- Username and password
+- Phone number and password
+- Email and password
+
+Implementation:
+
+- Use a custom user model from the start.
+- Store username, email, phone_number, country, referral_code, referred_by, activation_status, kyc_status.
+- Use a custom authentication backend that searches username, email, or phone.
+- Normalize phone numbers to Kenyan international format where possible, for example 2547XXXXXXXX.
+- Enforce unique phone number and unique email where business rules require it.
+- Add rate limiting to login attempts.
+
+Recommended user statuses:
+
+- LOCKED
+- ACTIVE
+- FLAGGED
+- SUSPENDED
+
+Recommended activation statuses:
+
+- NOT_ACTIVATED
+- PAYMENT_PENDING
+- ACTIVATED
+- ACTIVATION_REVERSED
+
+
+8. FINANCE SETTINGS
+-------------------
+
+Finance settings should be editable by admin but fully audited.
+
+Suggested settings:
+
+- activation_fee
+- activation_credit_mode
+- referral_bonus_type
+- referral_bonus_amount
+- referral_bonus_percent
+- referral_bonus_release_delay_hours
+- minimum_withdrawal_amount
+- maximum_daily_withdrawal_per_user
+- withdrawal_fee_fixed
+- withdrawal_fee_percent
+- reserve_percent
+- minimum_platform_cash_buffer
+- job_reward_release_delay_hours
+- auto_approve_small_jobs
+- max_claims_per_user_per_day
+- max_ad_watch_rewards_per_day
+- payout_enabled
+- deposit_enabled
+- maintenance_mode
+
+Activation credit mode options:
+
+- WITHDRAWABLE_BALANCE: activation fee becomes user balance and must be fully reserved.
+- PLATFORM_CREDIT: activation fee appears as balance but can only be spent inside the platform.
+- MIXED: admin defines withdrawable and non-withdrawable portions.
+
+The safest default is PLATFORM_CREDIT or MIXED. If the business insists on WITHDRAWABLE_BALANCE, the dashboard must show that the activation balance is a cash liability.
+
+
+9. WALLET AND LEDGER DESIGN
+---------------------------
+
+Never update a user's balance without a ledger record.
+
+Recommended tables:
+
+Wallet:
+
+- id
+- user_id
+- available_balance
+- pending_balance
+- locked_balance
+- total_earned
+- total_withdrawn
+- created_at
+- updated_at
+
+LedgerTransaction:
+
+- id
+- public_reference
+- user_id
+- wallet_id
+- transaction_type
+- direction
+- amount
+- balance_bucket
+- status
+- source_app
+- source_model
+- source_id
+- description
+- idempotency_key
+- created_by
+- created_at
+
+Ledger transaction types:
+
+- DEPOSIT_CONFIRMED
+- ACTIVATION_CREDIT
+- REFERRAL_BONUS_PENDING
+- REFERRAL_BONUS_AVAILABLE
+- JOB_REWARD_PENDING
+- JOB_REWARD_APPROVED
+- PRODUCT_COMMISSION
+- WITHDRAWAL_REQUESTED
+- WITHDRAWAL_PAID
+- WITHDRAWAL_FAILED
+- WITHDRAWAL_REVERSED
+- ADMIN_ADJUSTMENT
+- FRAUD_HOLD
+- SYSTEM_REVERSAL
+
+Ledger rules:
+
+- Amounts use DecimalField, never floats.
+- Every money-affecting service runs inside database transaction.atomic().
+- Use idempotency_key to prevent duplicate credits from repeated callbacks.
+- For M-Pesa receipt numbers, enforce uniqueness.
+- Admin adjustments require reason and audit log.
+
+
+10. ACTIVATION FLOW
+-------------------
+
+Required behavior:
+
+- When a user joins, account features are locked.
+- User must pay the minimum activation fee set by admin.
+- If the user was referred, a configured referral bonus goes to the referrer.
+- The activation fee shows in full in the new user's account balance as a starting point.
+
+Safe implementation flow:
+
+1. User registers.
+2. User status is LOCKED and activation status is NOT_ACTIVATED.
+3. User opens activation page.
+4. System creates ActivationPaymentRequest.
+5. User pays via STK Push or C2B.
+6. M-Pesa callback is received.
+7. System verifies amount, phone, reference, and duplicate status.
+8. System marks activation payment confirmed.
+9. System changes user status to ACTIVE.
+10. System posts ACTIVATION_CREDIT to the user's wallet.
+11. If a valid referrer exists, system posts REFERRAL_BONUS_PENDING or REFERRAL_BONUS_AVAILABLE according to admin rules.
+
+Important:
+
+If KES 185 is paid and KES 185 is credited to the user's wallet, then KES 185 is still owed to the user unless it is non-withdrawable platform credit. If the referrer also earns KES 75, the business has created KES 260 in user-visible value from KES 185 cash. That can only be safe if KES 75 is funded from real revenue or marketing budget.
+
+
+11. REFERRAL DESIGN
+-------------------
+
+Recommended referral rules:
+
+- Each user has a unique referral code.
+- Referral code can be used at registration.
+- A referred user is counted as invited immediately, but active only after activation payment clears.
+- Referral bonus is paid only after activation clears.
+- Bonus can be pending for a configurable delay to reduce fraud.
+- Referral levels should be limited. A simple first-level program is safest.
+- If multi-level referrals are required, admin should cap total payout per activation and show liability clearly.
+
+Referral statuses:
+
+- REGISTERED
+- ACTIVATION_PENDING
+- ACTIVE
+- BONUS_PENDING
+- BONUS_PAID
+- REVERSED
+- FLAGGED
+
+Admin referral reports:
+
+- Total invited
+- Active referrals
+- Inactive referrals
+- Referral conversion rate
+- Referral bonuses pending
+- Referral bonuses paid
+- Suspicious referral clusters
+
+
+12. JOB SYSTEM DESIGN
+---------------------
+
+Core idea:
+
+Admin creates jobs with amount, worker limit, proof requirements, expiry, category, and review mode. Users claim open jobs. When slots are full, the job automatically closes unless admin increases the limit or clones/reactivates it as a new job.
+
+Recommended tables:
+
+JobCategory:
+
+- name
+- slug
+- icon
+- color
+- is_active
+- sort_order
+
+Job:
+
+- title
+- category
+- description
+- instructions
+- reward_amount
+- worker_limit
+- claims_count
+- approved_count
+- pending_count
+- rejected_count
+- status
+- review_mode
+- proof_type
+- starts_at
+- ends_at
+- claim_expires_after_minutes
+- max_claims_per_user
+- created_by
+- cloned_from
+- created_at
+- updated_at
+
+JobClaim:
+
+- job
+- user
+- status
+- claimed_at
+- expires_at
+- submitted_at
+
+JobSubmission:
+
+- claim
+- user
+- text_answer
+- proof_url
+- proof_file
+- metadata
+- status
+- reviewed_by
+- reviewed_at
+- rejection_reason
+
+Job statuses:
+
+- DRAFT
+- PUBLISHED
+- FULL
+- PAUSED
+- EXPIRED
+- ARCHIVED
+
+Claim statuses:
+
+- CLAIMED
+- EXPIRED
+- SUBMITTED
+- APPROVED
+- REJECTED
+- CANCELLED
+
+Claiming safety:
+
+- Use transaction.atomic().
+- Lock the job row with select_for_update().
+- Check status is PUBLISHED.
+- Check claims_count is below worker_limit.
+- Check user has not exceeded per-job or daily limits.
+- Create JobClaim.
+- Increment claims_count.
+- If claims_count reaches worker_limit, set job status to FULL.
+
+Reactivation:
+
+- Admin can increase worker_limit on the same job.
+- Admin can clone a completed/full job as a new job.
+- Cloned jobs keep title/instructions/reward but reset claims and worker limit.
+
+
+13. SUGGESTED JOB TYPES AND PAYOUT RULES
+----------------------------------------
+
+All payout amounts must be admin-configurable. The values below are starting suggestions only.
+
+1. Survey jobs
+
+- Suggested reward: KES 10-150.
+- Rule: pay after all required questions are answered and duplicate checks pass.
+- Proof: survey response.
+- Risk: low quality/duplicate answers.
+- Controls: one response per user, device/IP checks, attention-check questions.
+
+2. Watch ads/video
+
+- Suggested reward: KES 0.50-5 per verified view.
+- Rule: pay only after timer completes and page remains active.
+- Proof: system event log.
+- Risk: bots and very low real ad revenue.
+- Controls: daily cap, cooldown, random checks, no payout above actual ad revenue.
+
+3. Trivia/quiz
+
+- Suggested reward: KES 2-20.
+- Rule: pay after user scores above admin pass mark.
+- Proof: quiz answers and score.
+- Risk: answer sharing.
+- Controls: random question order, question banks, cooldown.
+
+4. Blogging/social share
+
+- Suggested reward: KES 5-40.
+- Rule: pay after submitted URL/screenshot is approved.
+- Proof: URL, screenshot.
+- Risk: deleted posts and spam.
+- Controls: minimum post age before approval, manual review.
+
+5. App/game testing
+
+- Suggested reward: KES 50-300.
+- Rule: pay after user submits useful report with screenshots.
+- Proof: screenshots, device model, bug report.
+- Risk: fake reports.
+- Controls: report quality checklist and reviewer scoring.
+
+6. Website feedback/usability
+
+- Suggested reward: KES 50-250.
+- Rule: pay after user completes checklist and feedback is accepted.
+- Proof: answers, screenshots, session metadata.
+- Risk: copy-paste feedback.
+- Controls: minimum character count, unique answer checks.
+
+7. Data entry/tagging
+
+- Suggested reward: KES 2-25 per batch.
+- Rule: pay after required accuracy threshold is met.
+- Proof: submitted batch.
+- Risk: low accuracy.
+- Controls: gold-standard validation records and random review.
+
+8. Transcription
+
+- Suggested reward: KES 20-100 per short clip.
+- Rule: pay after text accuracy is reviewed.
+- Proof: transcript.
+- Risk: poor quality.
+- Controls: reviewer scoring and rejection reasons.
+
+9. Translation
+
+- Suggested reward: KES 20-200 per task.
+- Rule: pay after translation is reviewed.
+- Proof: translated text.
+- Risk: machine translation abuse.
+- Controls: quality scoring and random audits.
+
+10. Product review
+
+- Suggested reward: KES 20-100.
+- Rule: pay after review is approved and user is eligible.
+- Proof: review text or screenshot.
+- Risk: fake reviews.
+- Controls: require actual purchase/access, content rules.
+
+11. Paid chat sessions
+
+- Suggested reward: KES 20-150 per approved session or per admin-defined duration.
+- Rule: pay after verified session completes.
+- Proof: session record, duration, client approval.
+- Risk: abuse, unsafe content, harassment, adult content issues.
+- Controls: verified clients, code of conduct, reporting, moderation, age gate if required, strict terms.
+
+12. Product affiliate commissions
+
+- Suggested reward: fixed amount or percentage.
+- Rule: pay after purchase is confirmed and reversal window passes.
+- Proof: product purchase record.
+- Risk: self-purchase loops and refund abuse.
+- Controls: reversal window, fraud checks, one commission per valid purchase.
+
+13. Referral activation bonus
+
+- Suggested reward: fixed amount or percentage of activation fee.
+- Rule: pay after referred account activation clears.
+- Proof: activation payment record.
+- Risk: fake accounts, circular referrals.
+- Controls: phone uniqueness, device/IP checks, pending period, payout caps.
+
+
+14. PRODUCT STORE DESIGN
+------------------------
+
+The sample UI shows a product store with product cards, pricing, categories, sales count, library/downloads, and commissions.
+
+Recommended models:
+
+ProductCategory:
+
+- name
+- slug
+- is_active
+
+Product:
+
+- title
+- category
+- description
+- price
+- compare_at_price
+- cover_image
+- file
+- external_url
+- is_active
+- commission_type
+- commission_amount
+- commission_percent
+- created_by
+
+ProductPurchase:
+
+- product
+- buyer
+- amount
+- status
+- payment_source
+- purchased_at
+
+ProductCommission:
+
+- product
+- buyer
+- referrer
+- amount
+- status
+- release_at
+
+Rules:
+
+- Purchased products appear in user library.
+- Commission is pending until purchase is confirmed and reversal window passes.
+- Admin can disable a product without deleting purchase records.
+
+
+15. M-PESA DEPOSITS
+-------------------
+
+Deposit methods:
+
+- STK Push: best guided flow.
+- C2B PayBill/Till: fallback/manual style flow.
+
+STK Push flow:
+
+1. User enters phone and amount or selects activation/recharge.
+2. System creates MpesaPayment with status INITIATED.
+3. System calls Daraja STK Push.
+4. System stores MerchantRequestID and CheckoutRequestID.
+5. User sees "check your phone".
+6. Safaricom sends callback.
+7. System checks ResultCode.
+8. If success, system extracts receipt, amount, phone, transaction date.
+9. System validates amount and account reference.
+10. System posts wallet/activation ledger entry exactly once.
+11. System marks payment SUCCESS.
+
+C2B flow:
+
+1. Admin registers validation and confirmation URLs with Safaricom.
+2. User pays to PayBill/Till using account number.
+3. Safaricom calls validation URL.
+4. System accepts only valid account references and expected amount rules.
+5. Safaricom calls confirmation URL.
+6. System stores receipt and posts ledger entry exactly once.
+
+Required safeguards:
+
+- Unique MpesaReceiptNumber.
+- Unique CheckoutRequestID where applicable.
+- Store raw callback JSON.
+- Return success response to Safaricom for duplicate confirmations that were already processed.
+- Do not crash on callback errors.
+- Add reconciliation command to compare M-Pesa records with internal payment records.
+
+
+16. M-PESA WITHDRAWALS
+----------------------
+
+Withdrawal methods:
+
+- B2C automated payout after Safaricom approval.
+- Manual M-Pesa payout as fallback.
+
+Withdrawal request flow:
+
+1. User enters amount and confirms phone.
+2. System checks user is active, not flagged, KYC rules pass, and amount >= minimum withdrawal.
+3. System checks available wallet balance.
+4. System checks platform safe withdrawal pool.
+5. System creates WithdrawalRequest.
+6. System moves requested amount from available balance to locked/pending withdrawal.
+7. Admin reviews queue.
+8. Admin approves or rejects.
+9. If B2C is enabled, system sends B2C request.
+10. System waits for result callback.
+11. On success, mark PAID and post WITHDRAWAL_PAID ledger entry.
+12. On failure, release amount back to available balance.
+
+Withdrawal statuses:
+
+- REQUESTED
+- UNDER_REVIEW
+- APPROVED
+- PROCESSING
+- PAID
+- FAILED
+- REJECTED
+- CANCELLED
+
+Withdrawal blocking rules:
+
+- User available balance below minimum withdrawal.
+- User amount above daily limit.
+- User account is locked, flagged, suspended, or KYC-blocked.
+- Phone number is missing or invalid.
+- Duplicate pending withdrawal exists if admin chooses one-at-a-time rule.
+- Platform safe withdrawal pool is insufficient.
+- Payouts globally disabled by admin.
+
+
+17. SOLVENCY AND REVENUE DASHBOARD
+----------------------------------
+
+The admin dashboard must protect the business from bankruptcy.
+
+Definitions:
+
+Confirmed cash:
+
+- M-Pesa deposits that have been confirmed.
+- Bank cash entered by admin.
+- Other verified platform cash.
+
+User liability:
+
+- Sum of available user balances.
+- Sum of locked balances that may become withdrawable.
+- Sum of pending withdrawals.
+- Sum of pending approved rewards not yet released.
+- Any refundable activation credits.
+
+Platform revenue:
+
+- Fees explicitly earned by the platform.
+- Product margins.
+- Client-funded job campaign revenue.
+- Real ad revenue received.
+- Other non-refundable revenue recognized according to terms.
+
+Platform expenses:
+
+- Job rewards.
+- Referral bonuses.
+- Product commissions.
+- M-Pesa transaction fees.
+- Hosting and operating costs.
+
+Suggested dashboard formulas:
+
+Total wallet liability =
+available_balance + pending_withdrawals + withdrawable_locked_balance + approved_pending_rewards
+
+Current reserve surplus =
+confirmed_cash - total_wallet_liability - admin_minimum_cash_buffer - estimated_mpesa_fees
+
+For each withdrawal request, evaluate the after-payment state:
+
+cash_after_payout =
+confirmed_cash - requested_amount - estimated_mpesa_fee
+
+liability_after_payout =
+total_wallet_liability - requested_amount
+
+required_cash_after_payout =
+(liability_after_payout * reserve_ratio_target) + admin_minimum_cash_buffer
+
+Reserve ratio =
+confirmed_cash / total_wallet_liability
+
+Withdrawal should be allowed only if:
+
+- user_available_balance >= requested_amount
+- requested_amount >= minimum_withdrawal_amount
+- cash_after_payout >= required_cash_after_payout
+- user and platform payout status are valid
+
+The dashboard can also show an estimated safe withdrawal capacity by simulating approved withdrawals in priority order and stopping when the after-payment reserve rule would fail.
+
+Dashboard warning levels:
+
+- Green: reserve ratio >= 1.25
+- Yellow: reserve ratio >= 1.00 and < 1.25
+- Red: reserve ratio < 1.00
+
+If red, admin should pause withdrawals, pause bonuses, pause high-cost jobs, or inject cash before approving more payouts.
+
+
+18. ADMIN DASHBOARD SCREENS
+---------------------------
+
+1. Overview
+
+- Total income
+- Confirmed cash
+- Wallet liabilities
+- Safe withdrawal pool
+- Reserve ratio
+- Active users
+- Today's jobs completed
+- Today's deposits and withdrawals
+
+2. Users
+
+- Search by username, phone, email, referral code.
+- View status, balance, referral tree, jobs, withdrawals.
+- Activate, suspend, flag, unflag.
+- Manual wallet adjustment with reason.
+
+3. Finance settings
+
+- Activation fee.
+- Referral bonus.
+- Minimum withdrawal.
+- Withdrawal limits.
+- Reserve percentage.
+- Payout toggle.
+- Deposit toggle.
+
+4. Payments
+
+- STK Push requests.
+- C2B confirmations.
+- Failed callbacks.
+- Duplicate receipts.
+- Reconciliation status.
+
+5. Withdrawals
+
+- Pending queue.
+- Under review.
+- Approved.
+- Processing.
+- Paid.
+- Failed.
+- Rejected.
+
+6. Jobs
+
+- Create/edit job.
+- Set category, reward, worker limit, proof rules.
+- Pause, publish, close, clone/reactivate.
+- Review submissions.
+
+7. Referrals
+
+- Referral tree.
+- Active/inactive referrals.
+- Pending bonuses.
+- Paid bonuses.
+- Suspicious clusters.
+
+8. Products
+
+- Create product.
+- Upload cover/file to Cloudinary.
+- Set price and commission.
+- View sales and commissions.
+
+9. Reports
+
+- Revenue by source.
+- Payouts by source.
+- User liability over time.
+- Job profitability.
+- Referral cost.
+- Cash flow export.
+
+10. Audit logs
+
+- Admin setting changes.
+- Wallet adjustments.
+- Withdrawal decisions.
+- Job reward approvals.
+- User status changes.
+
+
+19. MOBILE-FIRST UX DESIGN
+--------------------------
+
+The sample UI uses:
+
+- Dark theme.
+- Left sidebar on desktop.
+- Wallet summary cards.
+- Task category badges.
+- Product cards.
+- Referral copy link panels.
+- Profile and finance widgets.
+
+Mobile design should include:
+
+- Bottom navigation for Dashboard, Jobs, Wallet, Referrals, Profile.
+- Offcanvas menu for secondary pages.
+- Large tap targets.
+- Sticky withdrawal/deposit actions where helpful.
+- Clear job status badges.
+- Low-bandwidth optimized images from Cloudinary.
+- Lazy-loaded product/job images.
+- Short forms with input masks for phone numbers.
+- Clear pending/success/failed payment states.
+
+Required responsive breakpoints:
+
+- Small phones: 360px width.
+- Normal phones: 390px to 430px width.
+- Tablets: 768px width.
+- Desktop: 1024px and above.
+
+Do not rely on hover-only actions because most users are on mobile.
+
+
+20. BACKGROUND TASKS
+--------------------
+
+The user requested Python threading if safe.
+
+Threading is safe only for short, non-critical, idempotent work such as:
+
+- Sending a non-essential notification after the database transaction commits.
+- Warming a small cache.
+- Logging a non-financial event.
+
+Threading is not safe for:
+
+- Posting wallet rewards.
+- M-Pesa callbacks.
+- Withdrawal payouts.
+- Reconciliation.
+- Job reward approval.
+- Anything that must survive dyno restarts.
+
+Recommended production background options:
+
+- Celery with Redis and a Heroku worker dyno.
+- RQ with Redis and a Heroku worker dyno.
+- A database-backed task table plus a management command run by Heroku Scheduler.
+- Django management commands for reconciliation and cleanup.
+
+Minimum background commands:
+
+- expire_old_job_claims
+- release_pending_referral_bonuses
+- release_pending_job_rewards
+- reconcile_mpesa_payments
+- retry_failed_notifications
+- calculate_daily_finance_snapshot
+
+
+21. SECURITY DESIGN
+-------------------
+
+Application security:
+
+- DEBUG=False in production.
+- Strong SECRET_KEY from env.
+- ALLOWED_HOSTS configured.
+- HTTPS only in production.
+- SESSION_COOKIE_SECURE=True.
+- CSRF_COOKIE_SECURE=True.
+- SECURE_SSL_REDIRECT=True behind Heroku proxy settings.
+- Password validation enabled.
+- Login rate limiting.
+- Admin URL protected and monitored.
+
+Payment security:
+
+- All M-Pesa credentials in env vars.
+- No secrets committed to Git.
+- Store raw callback JSON but avoid logging secrets.
+- Idempotency keys on all payment processing.
+- Confirm amount before crediting wallet.
+- Confirm account reference before activation.
+- Do not trust frontend success messages.
+- Reconciliation report for finance admin.
+
+Wallet security:
+
+- DecimalField for money.
+- Immutable ledger entries.
+- Admin adjustment requires reason.
+- Audit every finance setting change.
+- Lock rows during balance updates.
+- Prevent negative balances unless explicitly designed and audited.
+
+Fraud controls:
+
+- Unique phone number.
+- Device fingerprint where legally acceptable.
+- IP pattern checks.
+- Referral loop detection.
+- Daily earning limits.
+- Duplicate proof detection.
+- Impossible completion time checks.
+- Manual review queue.
+
+
+22. DATA PROTECTION AND COMPLIANCE
+----------------------------------
+
+Recommended policies:
+
+- Terms of service.
+- Privacy policy.
+- Refund/activation policy.
+- Withdrawal policy.
+- Job reward policy.
+- Referral policy.
+- Acceptable use policy.
+- Paid chat conduct policy.
+
+Special caution:
+
+The platform should not pay users mainly from other users' activation fees. Rewards should come from real task value, client campaigns, product margins, actual ad revenue, or a clearly funded promotion budget. This protects the client, users, and platform reputation.
+
+
+23. DEPLOYMENT ARCHITECTURE
+---------------------------
+
+Production components:
+
+- Heroku web dyno running Gunicorn.
+- Heroku Postgres database.
+- Cloudinary media storage.
+- WhiteNoise static file serving.
+- Safaricom Daraja APIs.
+- Optional Redis for Celery/RQ.
+- Optional Heroku Scheduler for recurring management commands.
+
+Required Heroku config vars:
+
+- SECRET_KEY
+- DEBUG
+- ALLOWED_HOSTS
+- DATABASE_URL
+- CLOUDINARY_URL
+- MPESA_ENVIRONMENT
+- MPESA_CONSUMER_KEY
+- MPESA_CONSUMER_SECRET
+- MPESA_PASSKEY
+- MPESA_BUSINESS_SHORT_CODE
+- MPESA_CALLBACK_BASE_URL
+- MPESA_B2C_INITIATOR_NAME
+- MPESA_B2C_SECURITY_CREDENTIAL
+- MPESA_B2C_RESULT_URL
+- MPESA_B2C_TIMEOUT_URL
+
+Required project files:
+
+- Procfile
+- requirements.txt
+- runtime.txt or .python-version
+- manage.py
+- Django settings package
+- static files config
+- templates
+
+
+24. DATABASE MODEL SUMMARY
+--------------------------
+
+accounts.User:
+
+- username
+- email
+- phone_number
+- country
+- referral_code
+- referred_by
+- status
+- activation_status
+- kyc_status
+- date_joined
+
+core.SiteSetting:
+
+- key
+- value
+- value_type
+- updated_by
+- updated_at
+
+wallets.Wallet:
+
+- user
+- available_balance
+- pending_balance
+- locked_balance
+- total_earned
+- total_withdrawn
+
+wallets.LedgerTransaction:
+
+- wallet
+- user
+- transaction_type
+- amount
+- bucket
+- status
+- source
+- idempotency_key
+- description
+- created_at
+
+payments.MpesaTransaction:
+
+- user
+- transaction_kind
+- phone_number
+- amount
+- account_reference
+- merchant_request_id
+- checkout_request_id
+- mpesa_receipt_number
+- status
+- raw_request
+- raw_callback
+- created_at
+- confirmed_at
+
+payments.WithdrawalRequest:
+
+- user
+- amount
+- fee
+- phone_number
+- status
+- mpesa_conversation_id
+- mpesa_originator_conversation_id
+- result_code
+- result_description
+- reviewed_by
+- reviewed_at
+- paid_at
+
+jobs.JobCategory:
+
+- name
+- slug
+- icon
+- color
+- is_active
+
+jobs.Job:
+
+- category
+- title
+- instructions
+- reward_amount
+- worker_limit
+- claims_count
+- status
+- review_mode
+- proof_type
+- starts_at
+- ends_at
+
+jobs.JobClaim:
+
+- job
+- user
+- status
+- claimed_at
+- expires_at
+
+jobs.JobSubmission:
+
+- claim
+- proof_text
+- proof_file
+- proof_url
+- status
+- reviewed_by
+- reviewed_at
+- rejection_reason
+
+referrals.ReferralBonus:
+
+- referrer
+- referred_user
+- activation_payment
+- amount
+- status
+- release_at
+
+products.Product:
+
+- category
+- title
+- price
+- cover_image
+- file
+- commission_amount
+- commission_percent
+- is_active
+
+products.ProductPurchase:
+
+- product
+- buyer
+- amount
+- status
+- purchased_at
+
+
+25. IMPLEMENTATION PHASES
+-------------------------
+
+Phase 1: Project foundation
+
+- Create Django project.
+- Add apps.
+- Configure PostgreSQL.
+- Configure Bootstrap templates.
+- Add custom user model and login backend.
+- Add sample UI based dashboard shell.
+
+Phase 2: Activation and wallet
+
+- Add finance settings.
+- Add wallet and ledger.
+- Add M-Pesa STK Push activation.
+- Add C2B fallback.
+- Add activation callback handling.
+- Add referral code and first-level bonus.
+
+Phase 3: Jobs
+
+- Add job categories.
+- Add job CRUD for admin.
+- Add job listing and mobile cards.
+- Add claim flow with slot locking.
+- Add proof submission.
+- Add review and reward approval.
+- Add clone/reactivate job action.
+
+Phase 4: Withdrawals and finance dashboard
+
+- Add withdrawal request flow.
+- Add minimum withdrawal rule.
+- Add admin approval.
+- Add B2C/manual payout flow.
+- Add solvency dashboard.
+- Add finance snapshots and exports.
+
+Phase 5: Products and commissions
+
+- Add product store.
+- Add product library.
+- Add product purchases.
+- Add commission rules.
+
+Phase 6: Growth and hardening
+
+- Add fraud checks.
+- Add KYC/OTP for withdrawals.
+- Add notifications.
+- Add support tickets.
+- Add monitoring and reconciliation.
+- Add tests for finance and payment flows.
+
+
+26. TESTING REQUIREMENTS
+------------------------
+
+Critical tests:
+
+- Login by username, phone, and email.
+- Locked users cannot access jobs or withdrawals.
+- Activation payment callback activates user exactly once.
+- Duplicate M-Pesa callback does not double-credit wallet.
+- Referral bonus posts once.
+- Job worker limit cannot be exceeded under concurrency.
+- User cannot claim same job twice if not allowed.
+- Reward approval posts once.
+- Withdrawal is blocked below minimum amount.
+- Withdrawal is blocked when platform safe pool is insufficient.
+- Failed B2C payout releases locked funds.
+- Admin adjustment requires reason and audit log.
+
+Recommended tooling:
+
+- Django TestCase for models/services.
+- pytest-django if preferred.
+- Factory Boy for fixtures if the project grows.
+- Playwright only if deep UI regression testing becomes necessary.
+
+
+27. FINAL DESIGN DECISIONS
+--------------------------
+
+- Use function-based views, but keep finance logic in services.
+- Use a custom user model from day one.
+- Use a wallet ledger, not direct balance edits.
+- Treat activation credits as liabilities unless clearly non-withdrawable.
+- Use database transactions for all money and job slot operations.
+- Use M-Pesa callbacks and reconciliation, not frontend responses, as source of truth.
+- Prefer real background workers for financial tasks.
+- Make admin settings powerful but audited.
+- Make mobile UX the default experience.
+- Keep rewards admin-configurable but financially guarded.
