@@ -1,0 +1,61 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Recharge Wallet | Workflow Agency{% endblock %}
+{% block eyebrow %}M-Pesa{% endblock %}
+{% block page_title %}Recharge wallet{% endblock %}
+
+{% block app_content %}
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">STK Push</span>
+                <h2>Add money to your wallet</h2>
+            </div>
+        </div>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label" for="{{ form.phone_number.id_for_label }}">M-Pesa phone number</label>
+                    {{ form.phone_number }}
+                    {{ form.phone_number.errors }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="{{ form.amount.id_for_label }}">Amount</label>
+                    {{ form.amount }}
+                    {{ form.amount.errors }}
+                </div>
+            </div>
+            <button class="btn btn-primary mt-4" type="submit">Send STK Push</button>
+        </form>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">PayBill fallback</span>
+                <h2>C2B reference</h2>
+            </div>
+        </div>
+        <div class="copy-card">
+            <span>Use this account reference if paying manually</span>
+            <strong>DEP{{ request.user.pk|stringformat:"06d" }}</strong>
+            <button class="btn btn-outline-primary btn-sm" type="button" data-copy-value="DEP{{ request.user.pk|stringformat:"06d" }}">Copy reference</button>
+        </div>
+    </aside>
+</section>
+
+<section class="panel mt-3">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">Recent</span>
+            <h2>Deposit attempts</h2>
+        </div>
+    </div>
+    {% include "payments/partials/transaction_table.html" with transactions=recent_transactions %}
+</section>
+{% endblock %}

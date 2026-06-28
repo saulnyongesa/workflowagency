@@ -1,0 +1,29 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Reject Withdrawal | Workflow Agency{% endblock %}
+{% block eyebrow %}Admin payouts{% endblock %}
+{% block page_title %}Reject withdrawal{% endblock %}
+
+{% block app_content %}
+<section class="panel narrow-panel">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">{{ withdrawal.user.username }}</span>
+            <h2>KES {{ withdrawal.amount }}</h2>
+        </div>
+    </div>
+    <form method="post" class="row g-3">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="col-12">
+            <label class="form-label" for="{{ form.reason.id_for_label }}">Reason</label>
+            {{ form.reason }}
+            {{ form.reason.errors }}
+        </div>
+        <div class="col-12 d-flex gap-2">
+            <button class="btn btn-danger" type="submit">Reject and return funds</button>
+            <a class="btn btn-outline-secondary" href="{% url 'withdrawal_queue' %}">Cancel</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

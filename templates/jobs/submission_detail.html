@@ -1,0 +1,73 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Submission | Jobs{% endblock %}
+{% block eyebrow %}Submission{% endblock %}
+{% block page_title %}{{ submission.claim.job.title }}{% endblock %}
+
+{% block app_content %}
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">{{ submission.claim.job.get_job_type_display }}</span>
+                <h2>Submitted proof</h2>
+            </div>
+            <span class="badge text-bg-secondary">{{ submission.get_status_display }}</span>
+        </div>
+        <div class="readiness-list">
+            <div>
+                <span>Text proof</span>
+                <strong>{{ submission.text_answer|default:"-"|linebreaksbr }}</strong>
+            </div>
+            <div>
+                <span>Proof URL</span>
+                <strong>
+                    {% if submission.proof_url %}
+                        <a href="{{ submission.proof_url }}" target="_blank" rel="noopener">{{ submission.proof_url }}</a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </strong>
+            </div>
+            <div>
+                <span>Proof file</span>
+                <strong>
+                    {% if submission.proof_file %}
+                        <a href="{{ submission.proof_file.url }}" target="_blank" rel="noopener">Open file</a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </strong>
+            </div>
+            {% if submission.rejection_reason %}
+                <div>
+                    <span>Review note</span>
+                    <strong>{{ submission.rejection_reason }}</strong>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Reward</span>
+                <h2>KES {{ submission.claim.job.reward_amount }}</h2>
+            </div>
+        </div>
+        <div class="readiness-list">
+            <div>
+                <span>Submitted</span>
+                <strong>{{ submission.created_at|date:"M d, Y H:i" }}</strong>
+            </div>
+            <div>
+                <span>Reviewed</span>
+                <strong>{{ submission.reviewed_at|date:"M d, Y H:i"|default:"Pending" }}</strong>
+            </div>
+            <div>
+                <span>Ledger</span>
+                <strong>{% if submission.ledger_transaction %}Posted{% else %}Pending{% endif %}</strong>
+            </div>
+        </div>
+    </aside>
+</section>
+{% endblock %}

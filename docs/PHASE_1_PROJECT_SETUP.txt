@@ -1,0 +1,54 @@
+PHASE 1: PROJECT SETUP
+======================
+
+Document date: 2026-06-28
+Status: Implemented foundation
+
+
+1. COMPLETED
+------------
+
+- Created Django project package: config.
+- Created domain apps:
+  - accounts
+  - core
+  - wallets
+  - payments
+  - jobs
+  - referrals
+  - products
+  - support
+  - reports
+- Added environment-based settings.
+- Added PostgreSQL-ready DATABASE_URL support with local SQLite fallback.
+- Added WhiteNoise static file configuration.
+- Added Cloudinary-ready media storage configuration.
+- Added custom user model before initial migrations.
+- Added login by username, email, or phone authentication backend.
+- Added base template and initial homepage.
+- Added starter authenticated dashboard.
+- Added Heroku deployment files.
+- Added requirements file.
+- Added .env example.
+- Added .gitignore.
+
+
+2. IMPORTANT NOTES
+------------------
+
+- Existing root M-Pesa files were preserved as references.
+- Production secrets must go into environment variables, not code.
+- The custom user model is in place before migrations, which avoids a painful user-model swap later.
+- Wallet, payment, job, referral, product, and reporting business logic will be implemented in later phases.
+
+
+3. NEXT PHASE
+-------------
+
+Phase 2 should build the design system and frontend shell:
+
+- Final responsive layout.
+- User dashboard shell.
+- Admin dashboard shell.
+- Reusable cards, badges, filters, tabs, alerts, and mobile navigation.
+- PageSpeed-conscious CSS and JavaScript structure.

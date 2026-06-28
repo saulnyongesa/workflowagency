@@ -6,13 +6,20 @@ The project will use Django function-based views, HTML templates, Bootstrap, van
 
 ## Current Status
 
-This repository currently contains:
+This repository now contains the active Django build foundation:
 
-- Sample UI screenshots in `sample_UI/`
-- A previous M-Pesa STK/C2B setup in `mpesa_config.py`, `mpesa_utils.py`, and `views.py`
-- Initial product and architecture documentation in `docs/ARCHITECTURE_AND_DESIGN.txt`
+- Custom user accounts with username, email, or phone login
+- Mobile-first Bootstrap app shell and dashboard
+- Admin finance settings and audit logs
+- Wallet and immutable ledger posting
+- Activation and referral bonus foundations
+- M-Pesa STK/C2B deposit foundation
+- Job marketplace with categories, worker limits, proof submission, review, approval, rejection, and cloning
+- Withdrawal request flow with minimum limit, locked funds, admin approval, manual paid marking, rejection, and solvency checks
+- Admin reports for confirmed cash, wallet liability, pending job proof, and withdrawal exposure
+- Phase documentation in `docs/PHASE_0...txt` through `docs/PHASE_10...txt`
 
-The existing M-Pesa files are useful as a reference, but the final system should be built as a fresh Django project with separated apps for accounts, wallet, jobs, referrals, payments, products, and admin reporting.
+The older standalone M-Pesa reference files remain useful as historical context, but the implementation now lives inside separated Django apps for accounts, core settings, wallet, jobs, referrals, payments, products, and reporting.
 
 ## Important Hosting Note
 

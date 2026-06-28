@@ -1,0 +1,54 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Review Jobs | Workflow Agency{% endblock %}
+{% block eyebrow %}Admin review{% endblock %}
+{% block page_title %}Job submissions{% endblock %}
+
+{% block app_content %}
+<section class="panel">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">Pending proof</span>
+            <h2>Review queue</h2>
+        </div>
+        <a href="{% url 'admin:jobs_job_changelist' %}">Manage jobs</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Submitted</th>
+                    <th>User</th>
+                    <th>Job</th>
+                    <th class="text-end">Reward</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in submissions %}
+                    <tr>
+                        <td>{{ submission.created_at|date:"M d, Y H:i" }}</td>
+                        <td>{{ submission.user.username }}</td>
+                        <td>
+                            <strong><a href="{% url 'job_submission_detail' submission.pk %}">{{ submission.claim.job.title }}</a></strong>
+                            <div class="text-secondary small">{{ submission.claim.job.get_proof_type_display }}</div>
+                        </td>
+                        <td class="text-end">KES {{ submission.claim.job.reward_amount }}</td>
+                        <td class="text-end">
+                            <form method="post" action="{% url 'approve_submission' submission.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-success" type="submit">Approve</button>
+                            </form>
+                            <a class="btn btn-sm btn-outline-danger" href="{% url 'reject_submission' submission.pk %}">Reject</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-secondary py-4">No submissions need review.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

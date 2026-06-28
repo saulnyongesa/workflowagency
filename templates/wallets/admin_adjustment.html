@@ -1,0 +1,114 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Wallet Adjustment | Workflow Agency{% endblock %}
+{% block eyebrow %}Admin finance{% endblock %}
+{% block page_title %}Wallet adjustment{% endblock %}
+
+{% block app_content %}
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Ledger-safe adjustment</span>
+                <h2>Post an admin wallet adjustment</h2>
+            </div>
+        </div>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label" for="{{ form.user.id_for_label }}">User</label>
+                    {{ form.user }}
+                    {{ form.user.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="{{ form.direction.id_for_label }}">Direction</label>
+                    {{ form.direction }}
+                    {{ form.direction.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="{{ form.balance_bucket.id_for_label }}">Bucket</label>
+                    {{ form.balance_bucket }}
+                    {{ form.balance_bucket.errors }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="{{ form.amount.id_for_label }}">Amount</label>
+                    {{ form.amount }}
+                    {{ form.amount.errors }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="{{ form.reason.id_for_label }}">Reason</label>
+                    {{ form.reason }}
+                    {{ form.reason.errors }}
+                </div>
+            </div>
+            <button class="btn btn-primary mt-4" type="submit">Post adjustment</button>
+        </form>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Policy</span>
+                <h2>Adjustment rules</h2>
+            </div>
+        </div>
+        <div class="readiness-list">
+            <div>
+                <span>Balances</span>
+                <strong>No negative balances allowed.</strong>
+            </div>
+            <div>
+                <span>Audit trail</span>
+                <strong>Every adjustment creates an audit log.</strong>
+            </div>
+            <div>
+                <span>Ledger</span>
+                <strong>Balances are updated only through posted ledger entries.</strong>
+            </div>
+        </div>
+    </aside>
+</section>
+
+<section class="panel mt-3">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">Recent</span>
+            <h2>Admin adjustments</h2>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>User</th>
+                    <th>Direction</th>
+                    <th>Bucket</th>
+                    <th>Reason</th>
+                    <th class="text-end">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in recent_adjustments %}
+                    <tr>
+                        <td>{{ tx.created_at|date:"M d, Y H:i" }}</td>
+                        <td>{{ tx.user }}</td>
+                        <td>{{ tx.get_direction_display }}</td>
+                        <td>{{ tx.get_balance_bucket_display }}</td>
+                        <td>{{ tx.description }}</td>
+                        <td class="text-end">KES {{ tx.amount }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-secondary py-4">No adjustments posted yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Register C2B URLs | Workflow Agency{% endblock %}
+{% block eyebrow %}Admin M-Pesa{% endblock %}
+{% block page_title %}Register C2B URLs{% endblock %}
+
+{% block app_content %}
+<section class="panel narrow-panel">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">Daraja C2B</span>
+            <h2>Validation and confirmation URLs</h2>
+        </div>
+    </div>
+    <div class="readiness-list mb-3">
+        <div>
+            <span>Validation URL</span>
+            <strong>{{ validation_url }}</strong>
+        </div>
+        <div>
+            <span>Confirmation URL</span>
+            <strong>{{ confirmation_url }}</strong>
+        </div>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <button class="btn btn-primary" type="submit">Register URLs with Safaricom</button>
+    </form>
+</section>
+{% endblock %}

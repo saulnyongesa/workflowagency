@@ -1,0 +1,64 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Activate Account | Workflow Agency{% endblock %}
+{% block eyebrow %}Activation{% endblock %}
+{% block page_title %}Activate account{% endblock %}
+
+{% block app_content %}
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">M-Pesa STK Push</span>
+                <h2>Pay activation fee</h2>
+            </div>
+            <strong>KES {{ finance_settings.activation_fee }}</strong>
+        </div>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.phone_number.id_for_label }}">M-Pesa phone number</label>
+                {{ form.phone_number }}
+                {{ form.phone_number.errors }}
+            </div>
+            <button class="btn btn-primary" type="submit">Send STK Push</button>
+        </form>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Rules</span>
+                <h2>Activation credit</h2>
+            </div>
+        </div>
+        <div class="readiness-list">
+            <div>
+                <span>Credit mode</span>
+                <strong>{{ finance_settings.get_activation_credit_mode_display }}</strong>
+            </div>
+            <div>
+                <span>Withdrawable portion</span>
+                <strong>KES {{ finance_settings.activation_withdrawable_amount }}</strong>
+            </div>
+            <div>
+                <span>Account reference</span>
+                <strong>ACT{{ request.user.pk|stringformat:"06d" }}</strong>
+            </div>
+        </div>
+    </aside>
+</section>
+
+<section class="panel mt-3">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">Recent</span>
+            <h2>Activation attempts</h2>
+        </div>
+    </div>
+    {% include "payments/partials/transaction_table.html" with transactions=recent_transactions %}
+</section>
+{% endblock %}

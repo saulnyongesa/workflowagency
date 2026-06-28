@@ -1,0 +1,46 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}My Jobs | Workflow Agency{% endblock %}
+{% block eyebrow %}Work history{% endblock %}
+{% block page_title %}My jobs{% endblock %}
+
+{% block app_content %}
+<section class="panel">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">Claims</span>
+            <h2>Recent job claims</h2>
+        </div>
+        <a href="{% url 'job_list' %}">Find jobs</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Job</th>
+                    <th>Status</th>
+                    <th>Expires</th>
+                    <th class="text-end">Reward</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for claim in claims %}
+                    <tr>
+                        <td>
+                            <strong><a href="{% url 'job_detail' claim.job.slug %}">{{ claim.job.title }}</a></strong>
+                            <div class="text-secondary small">{{ claim.job.category.name }} / {{ claim.job.get_job_type_display }}</div>
+                        </td>
+                        <td>{{ claim.get_status_display }}</td>
+                        <td>{{ claim.expires_at|date:"M d, Y H:i" }}</td>
+                        <td class="text-end">KES {{ claim.job.reward_amount }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-secondary py-4">You have not claimed any jobs yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

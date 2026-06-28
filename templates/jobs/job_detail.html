@@ -1,0 +1,70 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}{{ job.title }} | Jobs{% endblock %}
+{% block eyebrow %}{{ job.category.name }}{% endblock %}
+{% block page_title %}{{ job.title }}{% endblock %}
+
+{% block app_content %}
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">{{ job.get_job_type_display }}</span>
+                <h2>Job instructions</h2>
+            </div>
+            <span class="badge text-bg-primary">KES {{ job.reward_amount }}</span>
+        </div>
+        <p class="text-secondary">{{ job.description }}</p>
+        <div class="readiness-list mt-3">
+            <div>
+                <span>Instructions</span>
+                <strong>{{ job.instructions|linebreaksbr }}</strong>
+            </div>
+            <div>
+                <span>Proof required</span>
+                <strong>{{ job.get_proof_type_display }}</strong>
+            </div>
+            <div>
+                <span>Slots</span>
+                <strong>{{ job.claims_count }} claimed / {{ job.worker_limit }} total</strong>
+            </div>
+        </div>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Action</span>
+                <h2>Status</h2>
+            </div>
+        </div>
+        {% if claim %}
+            <div class="readiness-list">
+                <div>
+                    <span>Your claim</span>
+                    <strong>{{ claim.get_status_display }}</strong>
+                </div>
+                <div>
+                    <span>Expires</span>
+                    <strong>{{ claim.expires_at|date:"M d, Y H:i" }}</strong>
+                </div>
+            </div>
+            {% if submission %}
+                <a class="btn btn-primary w-100 mt-3" href="{% url 'job_submission_detail' submission.pk %}">View submission</a>
+            {% elif claim.status == "claimed" or claim.status == "rejected" %}
+                <a class="btn btn-primary w-100 mt-3" href="{% url 'submit_job' claim.pk %}">Submit proof</a>
+            {% endif %}
+        {% elif job.is_open %}
+            <form method="post" action="{% url 'claim_job' job.slug %}">
+                {% csrf_token %}
+                <button class="btn btn-primary w-100" type="submit">Claim job</button>
+            </form>
+        {% else %}
+            <div class="empty-state">
+                <strong>This job is not open.</strong>
+                <span>It may be full, paused, expired, or scheduled for later.</span>
+            </div>
+        {% endif %}
+    </aside>
+</section>
+{% endblock %}

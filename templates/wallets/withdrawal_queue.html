@@ -1,0 +1,69 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Withdrawal Review | Workflow Agency{% endblock %}
+{% block eyebrow %}Admin payouts{% endblock %}
+{% block page_title %}Withdrawal queue{% endblock %}
+
+{% block app_content %}
+<section class="panel">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">Reserve protected</span>
+            <h2>Pending payouts</h2>
+        </div>
+        <a href="{% url 'admin_dashboard' %}">Reports</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Requested</th>
+                    <th>User</th>
+                    <th>Status</th>
+                    <th class="text-end">Amount</th>
+                    <th>Paid reference</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for withdrawal in withdrawals %}
+                    <tr>
+                        <td>{{ withdrawal.created_at|date:"M d, Y H:i" }}</td>
+                        <td>
+                            <strong>{{ withdrawal.user.username }}</strong>
+                            <div class="text-secondary small">{{ withdrawal.phone_number }}</div>
+                        </td>
+                        <td>{{ withdrawal.get_status_display }}</td>
+                        <td class="text-end">KES {{ withdrawal.amount }}</td>
+                        <td>
+                            {% if withdrawal.status == "approved" or withdrawal.status == "processing" %}
+                                <form class="d-flex gap-2" method="post" action="{% url 'mark_withdrawal_paid' withdrawal.pk %}">
+                                    {% csrf_token %}
+                                    <input class="form-control form-control-sm" name="payout_reference" placeholder="Receipt">
+                                    <button class="btn btn-sm btn-success" type="submit">Paid</button>
+                                </form>
+                            {% else %}
+                                <span class="text-secondary small">Approve first</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-primary" href="{% url 'withdrawal_detail' withdrawal.pk %}">View</a>
+                            {% if withdrawal.status == "requested" %}
+                                <form method="post" action="{% url 'approve_withdrawal' withdrawal.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button class="btn btn-sm btn-primary" type="submit">Approve</button>
+                                </form>
+                            {% endif %}
+                            <a class="btn btn-sm btn-outline-danger" href="{% url 'reject_withdrawal' withdrawal.pk %}">Reject</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-secondary py-4">No withdrawals need review.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

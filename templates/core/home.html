@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Workflow Agency | Verified Online Work{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <span class="eyebrow">AI-work marketplace foundation</span>
+                <h1 class="display-5 fw-bold mt-3">Find verified tasks, track earnings, and request safe M-Pesa payouts.</h1>
+                <p class="lead text-secondary mt-3">
+                    Workflow Agency will connect users to admin-managed online jobs, surveys, product tasks, referrals, and digital opportunities with transparent wallet rules.
+                </p>
+                <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+                    <a class="btn btn-primary btn-lg" href="{% url 'login' %}">Login</a>
+                    <a class="btn btn-outline-primary btn-lg" href="#opportunities">View plan</a>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="hero-panel">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div>
+                            <p class="text-secondary mb-1">Phase 1 status</p>
+                            <h2 class="h4 mb-0">Django foundation</h2>
+                        </div>
+                        <span class="badge text-bg-success">Active</span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="metric-card">
+                                <span>Apps</span>
+                                <strong>9</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-card">
+                                <span>Wallet mode</span>
+                                <strong>Ledger</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-card">
+                                <span>Payments</span>
+                                <strong>M-Pesa</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-card">
+                                <span>Performance</span>
+                                <strong>90+</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="opportunities" class="py-5">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">Launch categories</span>
+            <h2>Built around real work and clear approval rules.</h2>
+        </div>
+        <div class="row g-3 mt-2">
+            <div class="col-md-6 col-xl-3">
+                <div class="opportunity-card">
+                    <span class="badge text-bg-info">Surveys</span>
+                    <h3>Research tasks</h3>
+                    <p>Admin-created surveys with worker limits and proof rules.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="opportunity-card">
+                    <span class="badge text-bg-success">Testing</span>
+                    <h3>Apps and games</h3>
+                    <p>Structured feedback, screenshots, and manual review.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="opportunity-card">
+                    <span class="badge text-bg-warning">Affiliate</span>
+                    <h3>Referrals</h3>
+                    <p>One-level activation bonuses with fraud controls.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="opportunity-card">
+                    <span class="badge text-bg-primary">Wallet</span>
+                    <h3>M-Pesa payouts</h3>
+                    <p>Minimum withdrawal rules and after-payout solvency checks.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="how-it-works" class="py-5 bg-soft">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <h2>How the system will work</h2>
+                <p class="text-secondary">This shell is ready for Phase 2 design system work and Phase 3 authentication screens.</p>
+            </div>
+            <div class="col-lg-8">
+                <div class="steps">
+                    <div><strong>1</strong><span>Register and activate account.</span></div>
+                    <div><strong>2</strong><span>Claim available jobs while slots remain.</span></div>
+                    <div><strong>3</strong><span>Submit proof and wait for review.</span></div>
+                    <div><strong>4</strong><span>Withdraw only when rules and platform reserves allow it.</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

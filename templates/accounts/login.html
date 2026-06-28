@@ -1,0 +1,29 @@
+{% extends "layouts/auth.html" %}
+
+{% block title %}Login | Workflow Agency{% endblock %}
+
+{% block auth_content %}
+<div class="auth-card">
+    <span class="eyebrow">Welcome back</span>
+    <h1 class="h3 mt-2">Login to Workflow Agency</h1>
+    <p class="text-secondary">Use your username, phone number, or email address.</p>
+    <form method="post" class="mt-4" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <div class="mb-3">
+            <label class="form-label" for="{{ form.username.id_for_label }}">Username, phone, or email</label>
+            {{ form.username }}
+            {{ form.username.errors }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="{{ form.password.id_for_label }}">Password</label>
+            {{ form.password }}
+            {{ form.password.errors }}
+        </div>
+        <button class="btn btn-primary w-100" type="submit">Login</button>
+    </form>
+    <p class="text-secondary text-center mt-3 mb-0">No account yet? <a href="{% url 'register' %}">Create one</a></p>
+</div>
+{% endblock %}

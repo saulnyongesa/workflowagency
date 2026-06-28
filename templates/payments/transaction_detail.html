@@ -1,0 +1,51 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}M-Pesa Transaction | Workflow Agency{% endblock %}
+{% block eyebrow %}M-Pesa{% endblock %}
+{% block page_title %}Transaction status{% endblock %}
+
+{% block app_content %}
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">{{ transaction.get_payment_method_display }}</span>
+                <h2>{{ transaction.get_transaction_kind_display }} payment</h2>
+            </div>
+            <span class="badge text-bg-secondary">{{ transaction.get_status_display }}</span>
+        </div>
+        <div class="readiness-list">
+            <div>
+                <span>Amount</span>
+                <strong>KES {{ transaction.amount }}</strong>
+            </div>
+            <div>
+                <span>Phone</span>
+                <strong>{{ transaction.phone_number }}</strong>
+            </div>
+            <div>
+                <span>Account reference</span>
+                <strong>{{ transaction.account_reference }}</strong>
+            </div>
+            <div>
+                <span>M-Pesa receipt</span>
+                <strong>{{ transaction.mpesa_receipt_number|default:"Pending" }}</strong>
+            </div>
+            <div>
+                <span>Message</span>
+                <strong>{{ transaction.result_description|default:"Waiting for M-Pesa confirmation" }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Next</span>
+                <h2>What happens now</h2>
+            </div>
+        </div>
+        <p class="text-secondary mb-0">Wallet credit and account activation happen only after M-Pesa sends a successful callback.</p>
+    </aside>
+</section>
+{% endblock %}

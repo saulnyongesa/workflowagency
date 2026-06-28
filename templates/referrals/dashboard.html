@@ -1,0 +1,124 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Referrals | Workflow Agency{% endblock %}
+{% block eyebrow %}Network{% endblock %}
+{% block page_title %}Referrals{% endblock %}
+
+{% block app_content %}
+<section class="stats-grid">
+    <article class="stat-card">
+        <span>Invited</span>
+        <strong>{{ totals.invited }}</strong>
+        <small>Total direct referrals.</small>
+    </article>
+    <article class="stat-card stat-success">
+        <span>Active</span>
+        <strong>{{ totals.active }}</strong>
+        <small>Activated direct referrals.</small>
+    </article>
+    <article class="stat-card stat-warning">
+        <span>Pending bonus</span>
+        <strong>KES {{ totals.pending_bonus }}</strong>
+        <small>Waiting for release.</small>
+    </article>
+    <article class="stat-card stat-info">
+        <span>Credited bonus</span>
+        <strong>KES {{ totals.credited_bonus }}</strong>
+        <small>Posted to wallet.</small>
+    </article>
+</section>
+
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Invite</span>
+                <h2>Your referral code</h2>
+            </div>
+        </div>
+        <div class="copy-card">
+            <span>Share this code with new users</span>
+            <strong>{{ request.user.referral_code }}</strong>
+            <button class="btn btn-outline-primary btn-sm" type="button" data-copy-value="{{ request.user.referral_code }}">Copy code</button>
+        </div>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Rules</span>
+                <h2>Bonus safety</h2>
+            </div>
+        </div>
+        <p class="text-secondary mb-0">Referral bonuses are created only after successful activation payment and can be delayed for fraud review.</p>
+    </aside>
+</section>
+
+<section class="panel mt-3">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">Members</span>
+            <h2>Direct referrals</h2>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in direct_referrals %}
+                    <tr>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.get_status_display }}</td>
+                        <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center text-secondary py-4">No referrals yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="panel mt-3">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">Bonuses</span>
+            <h2>Referral bonus history</h2>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Referred user</th>
+                    <th>Status</th>
+                    <th>Release at</th>
+                    <th class="text-end">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bonus in bonuses %}
+                    <tr>
+                        <td>{{ bonus.referred_user.username }}</td>
+                        <td>{{ bonus.get_status_display }}</td>
+                        <td>{{ bonus.release_at|date:"M d, Y H:i" }}</td>
+                        <td class="text-end">KES {{ bonus.amount }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-secondary py-4">No referral bonuses yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

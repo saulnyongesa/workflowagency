@@ -1,0 +1,72 @@
+PHASE 2: DESIGN SYSTEM AND FRONTEND SHELL
+=========================================
+
+Document date: 2026-06-28
+Status: Implemented foundation
+
+
+1. COMPLETED
+------------
+
+- Reworked the frontend into a modern AI-work marketplace style inspired by Outlier AI and Handshake AI.
+- Added a reusable public base layout.
+- Added a reusable authentication layout.
+- Added a reusable authenticated app layout.
+- Added desktop dashboard sidebar navigation.
+- Added mobile bottom navigation.
+- Added dashboard topbar.
+- Added reusable UI patterns:
+  - brand mark
+  - status pills
+  - stat cards
+  - opportunity rows
+  - dashboard panels
+  - readiness lists
+  - copy cards
+  - auth cards
+  - report cards
+- Added a user dashboard shell.
+- Added a staff reports dashboard shell.
+- Added responsive CSS for mobile, tablet, and desktop layouts.
+- Kept JavaScript lightweight and page-safe for PageSpeed goals.
+
+
+2. DESIGN DIRECTION
+-------------------
+
+The implemented direction is:
+
+- Light, professional marketplace interface.
+- Deep navy and blue/teal accents.
+- Clean cards and job opportunity rows.
+- Mobile-first navigation.
+- Clear account status and activation messaging.
+- No exaggerated earning claims.
+
+
+3. IMPORTANT LIMITS
+-------------------
+
+Phase 2 is a frontend shell. The following features are intentionally placeholders until later phases:
+
+- Real wallet balances.
+- Real job listings.
+- Real deposits and withdrawals.
+- Real product library.
+- Real referral earnings.
+- Real admin finance reports.
+
+
+4. NEXT FRONTEND WORK
+---------------------
+
+Later phases should add:
+
+- Jobs list and job detail screens.
+- Wallet screens.
+- Deposit and withdrawal screens.
+- Referral tree screen.
+- Product store screens.
+- Full admin finance reports.
+- PageSpeed testing on production-like pages.
+

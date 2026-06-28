@@ -1,0 +1,132 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Admin Reports | Workflow Agency{% endblock %}
+{% block eyebrow %}Admin workspace{% endblock %}
+{% block page_title %}Reports dashboard{% endblock %}
+
+{% block app_content %}
+<section class="hero-dashboard admin-hero">
+    <div>
+        <span class="eyebrow">Finance safety</span>
+        <h2>Monitor cash, wallet liability, jobs, and withdrawal exposure before payouts leave.</h2>
+        <p>Confirmed deposits, ledger liabilities, pending proof, and payout queues are tracked from one workspace.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-light" href="{% url 'withdrawal_queue' %}">Payout queue</a>
+        <a class="btn btn-outline-light" href="{% url 'review_queue' %}">Job review</a>
+    </div>
+</section>
+
+<section class="stats-grid">
+    {% for card in report_cards %}
+        <article class="stat-card stat-{{ card.tone }}">
+            <span>{{ card.label }}</span>
+            <strong>{{ card.value }}</strong>
+            <small>{{ card.helper }}</small>
+        </article>
+    {% endfor %}
+</section>
+
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Reserve rules</span>
+                <h2>Finance settings</h2>
+            </div>
+            <a href="{% url 'admin:core_financesettings_changelist' %}">Edit settings</a>
+        </div>
+        <div class="readiness-list">
+            <div>
+                <span>Activation fee</span>
+                <strong>KES {{ finance_settings.activation_fee }}</strong>
+            </div>
+            <div>
+                <span>Activation credit mode</span>
+                <strong>{{ finance_settings.get_activation_credit_mode_display }}</strong>
+            </div>
+            <div>
+                <span>Referral bonus</span>
+                <strong>{{ finance_settings.get_referral_bonus_type_display }} / KES {{ finance_settings.referral_bonus_amount }}</strong>
+            </div>
+            <div>
+                <span>Reserve ratio target</span>
+                <strong>{{ finance_settings.reserve_ratio_target }}</strong>
+            </div>
+            <div>
+                <span>Minimum withdrawal</span>
+                <strong>KES {{ finance_settings.minimum_withdrawal_amount }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Liability</span>
+                <h2>Wallet buckets</h2>
+            </div>
+        </div>
+        <div class="readiness-list">
+            <div>
+                <span>Available</span>
+                <strong>KES {{ liabilities.available }}</strong>
+            </div>
+            <div>
+                <span>Pending</span>
+                <strong>KES {{ liabilities.pending }}</strong>
+            </div>
+            <div>
+                <span>Locked</span>
+                <strong>KES {{ liabilities.locked }}</strong>
+            </div>
+            <div>
+                <span>Ledger entries</span>
+                <strong>{{ ledger_count }}</strong>
+            </div>
+        </div>
+    </aside>
+</section>
+
+<section class="panel mt-3">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">Coming next</span>
+            <h2>Operational reports</h2>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Report</th>
+                    <th>Purpose</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Wallet liability</td>
+                    <td>Show all available, pending, and locked balances.</td>
+                    <td><span class="badge text-bg-success">Live</span></td>
+                </tr>
+                <tr>
+                    <td>M-Pesa reconciliation</td>
+                    <td>Match confirmed receipts with internal ledger entries.</td>
+                    <td><span class="badge text-bg-success">Live foundation</span></td>
+                </tr>
+                <tr>
+                    <td>Withdrawal safety</td>
+                    <td>Approve payouts only after after-payout solvency checks.</td>
+                    <td><span class="badge text-bg-success">Live</span></td>
+                </tr>
+                <tr>
+                    <td>Job proof review</td>
+                    <td>Approve user submissions and post rewards to wallets.</td>
+                    <td><span class="badge text-bg-success">Live</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

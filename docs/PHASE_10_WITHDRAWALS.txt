@@ -1,0 +1,174 @@
+PHASE 10 - WITHDRAWALS
+======================
+
+Status: Implemented manual payout foundation
+Date: 2026-06-28
+
+
+1. GOAL
+-------
+
+Phase 10 lets eligible users request withdrawals while protecting platform solvency. The system locks requested funds, requires admin review, and only allows approval when the after-payout reserve check passes.
+
+This phase supports a manual payout workflow. Daraja B2C can be added later using the same `WithdrawalRequest` lifecycle.
+
+
+2. IMPLEMENTED FILES
+--------------------
+
+- `wallets/models.py`
+  - `WithdrawalRequest`
+- `wallets/services.py`
+  - `confirmed_cash_total`
+  - `calculate_withdrawal_fee`
+  - `withdrawal_solvency_snapshot`
+  - `request_withdrawal`
+  - `assert_withdrawal_safe`
+  - `approve_withdrawal`
+  - `mark_withdrawal_paid`
+  - `reject_withdrawal`
+- `wallets/forms.py`
+  - withdrawal request, paid reference, and rejection forms
+- `wallets/views.py`
+  - user request/detail pages
+  - admin queue
+  - approve, paid, and reject actions
+- `templates/wallets/`
+  - withdrawal request, detail, queue, and rejection pages
+- `reports/views.py`
+  - confirmed cash and open withdrawal insight
+
+
+3. WITHDRAWAL LIFECYCLE
+-----------------------
+
+Requested:
+
+- User submits amount and M-Pesa phone number.
+- System checks account status, minimum withdrawal, daily limit, available balance, fee rules, and solvency.
+- System debits available balance and credits locked balance.
+
+Approved:
+
+- Staff approves the request.
+- System rechecks solvency before changing status.
+
+Paid:
+
+- Staff marks payout as paid after manual M-Pesa payout or verified external payment.
+- System debits locked balance.
+- User lifetime withdrawn total increases.
+
+Rejected:
+
+- Staff enters a rejection reason.
+- System debits locked balance and credits available balance.
+- User funds return to available balance.
+
+Cancelled, failed, and processing statuses are reserved for later B2C integration and more detailed payout handling.
+
+
+4. SOLVENCY RULE
+----------------
+
+The approval safety check uses this formula:
+
+Confirmed cash after payout must be greater than or equal to required cash after payout.
+
+Where:
+
+- confirmed_cash = successful M-Pesa transaction total
+- cash_after_payout = confirmed_cash - withdrawal amount - withdrawal fee
+- wallet_liability = available + pending + locked balances
+- liability_after_payout = wallet_liability - withdrawal amount
+- required_cash_after_payout = liability_after_payout * reserve_ratio_target + minimum_platform_cash_buffer
+
+If `cash_after_payout` is lower than `required_cash_after_payout`, the request or approval is blocked.
+
+
+5. ADMIN SETTINGS USED
+----------------------
+
+From `FinanceSettings`:
+
+- `payout_enabled`
+- `minimum_withdrawal_amount`
+- `maximum_daily_withdrawal_per_user`
+- `withdrawal_fee_fixed`
+- `withdrawal_fee_percent`
+- `reserve_ratio_target`
+- `minimum_platform_cash_buffer`
+
+Important:
+
+The reserve ratio target should usually remain at least 1.00. A value above 1.00 provides extra safety because it requires more confirmed cash than total wallet liability.
+
+
+6. WHY FUNDS ARE LOCKED
+-----------------------
+
+When a user requests withdrawal, funds move from available to locked.
+
+This prevents:
+
+- User spending or withdrawing the same balance twice.
+- Admin approving a payout after the wallet balance changed.
+- Confusion between money that is still withdrawable and money already under payout review.
+
+If the request is rejected, locked funds are returned to available. If the request is paid, locked funds are removed from the wallet.
+
+
+7. MANUAL PAYOUT PROCESS
+------------------------
+
+Current admin steps:
+
+1. Open Wallet > Payout review.
+2. Review user, phone, amount, fee, and platform reports.
+3. Approve the withdrawal if the system allows it.
+4. Pay the user manually through the business payout process.
+5. Enter the payout reference or M-Pesa receipt.
+6. Mark the withdrawal as paid.
+
+The admin must not mark a withdrawal paid before the money has actually been sent.
+
+
+8. FUTURE B2C INTEGRATION
+-------------------------
+
+When Safaricom B2C credentials are ready:
+
+- Add B2C initiation service.
+- Move approved withdrawals to processing.
+- Store OriginatorConversationID and ConversationID.
+- Add B2C result callback.
+- Add B2C timeout callback.
+- Mark paid only from verified success callback.
+- Mark failed and release locked funds on verified failure.
+
+The current model already has statuses and references that can support this next step.
+
+
+9. TEST COVERAGE
+----------------
+
+Phase 10 tests cover:
+
+- Minimum withdrawal amount blocking.
+- Request flow locking available funds.
+- Rejection returning locked funds.
+- Approval and paid flow reducing locked balance.
+- Lifetime withdrawn total update.
+- Solvency blocking when wallet liability is not backed by confirmed M-Pesa cash.
+- User request view.
+- Staff payout queue.
+
+
+10. OPERATIONAL GUIDANCE
+------------------------
+
+- Keep payouts disabled until M-Pesa deposits and wallet liability reconciliation are stable.
+- Review admin reports before approving large withdrawals.
+- Do not rely on activation fees alone as profit if the full activation value is credited back to users.
+- Keep a cash buffer for disputes, failed M-Pesa reconciliation, chargebacks, and delayed client revenue.
+- Use manual payouts only with clear receipt tracking until B2C callbacks are implemented.

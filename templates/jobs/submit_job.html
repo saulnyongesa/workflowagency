@@ -1,0 +1,39 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Submit Proof | Jobs{% endblock %}
+{% block eyebrow %}Proof upload{% endblock %}
+{% block page_title %}{{ claim.job.title }}{% endblock %}
+
+{% block app_content %}
+<section class="panel narrow-panel">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">{{ claim.job.get_proof_type_display }}</span>
+            <h2>Submit your work</h2>
+        </div>
+        <span class="badge text-bg-success">KES {{ claim.job.reward_amount }}</span>
+    </div>
+    <form method="post" enctype="multipart/form-data" class="row g-3">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="col-12">
+            <label class="form-label" for="{{ form.text_answer.id_for_label }}">Text proof</label>
+            {{ form.text_answer }}
+            {{ form.text_answer.errors }}
+        </div>
+        <div class="col-12">
+            <label class="form-label" for="{{ form.proof_url.id_for_label }}">Proof URL</label>
+            {{ form.proof_url }}
+            {{ form.proof_url.errors }}
+        </div>
+        <div class="col-12">
+            <label class="form-label" for="{{ form.proof_file.id_for_label }}">Proof file</label>
+            {{ form.proof_file }}
+            {{ form.proof_file.errors }}
+        </div>
+        <div class="col-12 d-grid">
+            <button class="btn btn-primary" type="submit">Submit proof</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

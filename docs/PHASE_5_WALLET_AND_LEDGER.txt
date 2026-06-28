@@ -1,0 +1,51 @@
+PHASE 5: WALLET AND LEDGER
+==========================
+
+Document date: 2026-06-28
+Status: Implemented foundation
+
+
+1. COMPLETED
+------------
+
+- Added one wallet per user.
+- Added wallet buckets:
+  - available balance
+  - pending balance
+  - locked balance
+  - total earned
+  - total withdrawn
+- Added immutable ledger transaction model.
+- Added transaction types for deposits, activation credits, referral bonuses, job rewards, product commissions, withdrawals, admin adjustments, fraud holds, and reversals.
+- Added idempotency key support.
+- Added row locking in the wallet posting service.
+- Added insufficient-balance protection for debits.
+- Added admin adjustment service.
+- Added audit log entry for admin wallet adjustments.
+- Added wallet dashboard page.
+- Added admin wallet adjustment page.
+- Added wallet liability summary for admin reports.
+- Added tests for wallet creation, credits, idempotency, debit protection, and audited adjustments.
+
+
+2. IMPORTANT RULES
+------------------
+
+- Balances should not be edited directly.
+- All balance changes must go through `post_ledger_transaction`.
+- Duplicate idempotency keys return the original ledger transaction and do not post money twice.
+- Admin adjustments require a reason and create an audit log.
+- Ledger rows are protected from admin editing.
+
+
+3. NEXT WORK
+------------
+
+Later phases should post ledger entries from:
+
+- M-Pesa activation deposits.
+- Referral bonus release.
+- Job reward approval.
+- Product commissions.
+- Withdrawal requests and payouts.
+

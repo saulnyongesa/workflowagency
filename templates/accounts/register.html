@@ -1,0 +1,56 @@
+{% extends "layouts/auth.html" %}
+
+{% block title %}Create Account | Workflow Agency{% endblock %}
+
+{% block auth_content %}
+<div class="auth-card auth-card-wide">
+    <span class="eyebrow">Start earning safely</span>
+    <h1 class="h3 mt-2">Create your account</h1>
+    <p class="text-secondary">Your account starts locked until activation payment is confirmed.</p>
+    <form method="post" class="mt-4" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
+                {{ form.username }}
+                {{ form.username.errors }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="{{ form.phone_number.id_for_label }}">Phone number</label>
+                {{ form.phone_number }}
+                {{ form.phone_number.errors }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
+                {{ form.email }}
+                {{ form.email.errors }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="{{ form.country.id_for_label }}">Country</label>
+                {{ form.country }}
+                {{ form.country.errors }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="{{ form.password1.id_for_label }}">Password</label>
+                {{ form.password1 }}
+                {{ form.password1.errors }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="{{ form.password2.id_for_label }}">Confirm password</label>
+                {{ form.password2 }}
+                {{ form.password2.errors }}
+            </div>
+            <div class="col-12">
+                <label class="form-label" for="{{ form.referral_code.id_for_label }}">Referral code</label>
+                {{ form.referral_code }}
+                {{ form.referral_code.errors }}
+            </div>
+        </div>
+        <button class="btn btn-primary w-100 mt-4" type="submit">Create account</button>
+    </form>
+    <p class="text-secondary text-center mt-3 mb-0">Already registered? <a href="{% url 'login' %}">Login</a></p>
+</div>
+{% endblock %}

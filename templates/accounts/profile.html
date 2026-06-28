@@ -1,0 +1,81 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Profile | Workflow Agency{% endblock %}
+{% block eyebrow %}Account{% endblock %}
+{% block page_title %}Profile{% endblock %}
+
+{% block app_content %}
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Personal details</span>
+                <h2>Profile information</h2>
+            </div>
+            <a href="{% url 'password_change' %}">Change password</a>
+        </div>
+        <form method="post" class="profile-form" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label" for="{{ form.first_name.id_for_label }}">First name</label>
+                    {{ form.first_name }}
+                    {{ form.first_name.errors }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="{{ form.last_name.id_for_label }}">Last name</label>
+                    {{ form.last_name }}
+                    {{ form.last_name.errors }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
+                    {{ form.email }}
+                    {{ form.email.errors }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="{{ form.phone_number.id_for_label }}">Phone number</label>
+                    {{ form.phone_number }}
+                    {{ form.phone_number.errors }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="{{ form.country.id_for_label }}">Country</label>
+                    {{ form.country }}
+                    {{ form.country.errors }}
+                </div>
+            </div>
+            <button class="btn btn-primary mt-4" type="submit">Save profile</button>
+        </form>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Referral</span>
+                <h2>Invite details</h2>
+            </div>
+        </div>
+        <div class="copy-card">
+            <span>Your referral code</span>
+            <strong>{{ request.user.referral_code }}</strong>
+            <button class="btn btn-outline-primary btn-sm" type="button" data-copy-value="{{ request.user.referral_code }}">Copy code</button>
+        </div>
+        <div class="readiness-list mt-3">
+            <div>
+                <span>Status</span>
+                <strong>{{ request.user.get_status_display }}</strong>
+            </div>
+            <div>
+                <span>Activation</span>
+                <strong>{{ request.user.get_activation_status_display }}</strong>
+            </div>
+            <div>
+                <span>Direct referrals</span>
+                <strong>{{ request.user.direct_referrals.count }}</strong>
+            </div>
+        </div>
+    </aside>
+</section>
+{% endblock %}

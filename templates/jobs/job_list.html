@@ -1,0 +1,68 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Jobs | Workflow Agency{% endblock %}
+{% block eyebrow %}Marketplace{% endblock %}
+{% block page_title %}Open jobs{% endblock %}
+
+{% block app_content %}
+<section class="panel mb-3">
+    <form class="row g-2 align-items-end" method="get">
+        <div class="col-md-4">
+            <label class="form-label" for="q">Search</label>
+            <input class="form-control" id="q" name="q" value="{{ search_query }}" placeholder="Survey, testing, ads">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="category">Category</label>
+            <select class="form-select" id="category" name="category">
+                <option value="">All categories</option>
+                {% for category in categories %}
+                    <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="type">Type</label>
+            <select class="form-select" id="type" name="type">
+                <option value="">All types</option>
+                {% for value, label in job_types %}
+                    <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button class="btn btn-primary" type="submit">Filter</button>
+        </div>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">Claimable work</span>
+            <h2>Available campaigns</h2>
+        </div>
+        <a href="{% url 'my_jobs' %}">My jobs</a>
+    </div>
+    <div class="opportunity-list">
+        {% for job in jobs %}
+            <article class="job-row">
+                <div>
+                    <span class="job-category">{{ job.category.name }} / {{ job.get_job_type_display }}</span>
+                    <h3><a href="{% url 'job_detail' job.slug %}">{{ job.title }}</a></h3>
+                    <p>{{ job.description|truncatechars:120 }}</p>
+                </div>
+                <div class="job-payout">
+                    <strong>KES {{ job.reward_amount }}</strong>
+                    <span>{{ job.available_slots }} slots left</span>
+                    <a class="btn btn-sm btn-outline-primary mt-2" href="{% url 'job_detail' job.slug %}">View</a>
+                </div>
+            </article>
+        {% empty %}
+            <div class="empty-state">
+                <strong>No open jobs found.</strong>
+                <span>Check again after admin publishes more campaigns.</span>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

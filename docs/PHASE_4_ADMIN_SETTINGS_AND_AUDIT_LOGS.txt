@@ -1,0 +1,46 @@
+PHASE 4: ADMIN SETTINGS AND AUDIT LOGS
+======================================
+
+Document date: 2026-06-28
+Status: Implemented foundation
+
+
+1. COMPLETED
+------------
+
+- Added singleton finance settings model.
+- Added configurable activation fee.
+- Added activation credit mode.
+- Added referral bonus type, amount, and percent.
+- Added minimum withdrawal amount.
+- Added daily withdrawal limit.
+- Added withdrawal fee settings.
+- Added reserve ratio target and minimum platform cash buffer.
+- Added deposit, payout, and maintenance toggles.
+- Added generic site settings model.
+- Added audit log model.
+- Added Django admin management for settings.
+- Added audit logging for finance setting changes and site setting changes.
+- Added settings data to the admin reports dashboard.
+
+
+2. IMPORTANT RULES
+------------------
+
+- Finance settings are a singleton: there should be one active settings record.
+- Finance settings changes are audited from Django admin.
+- Audit logs are read-only in admin.
+- Production secrets still belong in environment variables, not site settings.
+
+
+3. NEXT WORK
+------------
+
+Later phases should connect these settings to:
+
+- Activation payment.
+- Referral bonus posting.
+- Withdrawal approval.
+- M-Pesa payout rules.
+- Maintenance mode middleware.
+

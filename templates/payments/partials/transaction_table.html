@@ -1,0 +1,28 @@
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Kind</th>
+                <th>Reference</th>
+                <th>Status</th>
+                <th class="text-end">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.created_at|date:"M d, Y H:i" }}</td>
+                    <td>{{ transaction.get_transaction_kind_display }}</td>
+                    <td><a href="{% url 'mpesa_transaction_detail' transaction.public_reference %}">{{ transaction.account_reference }}</a></td>
+                    <td>{{ transaction.get_status_display }}</td>
+                    <td class="text-end">KES {{ transaction.amount }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-secondary py-4">No transactions yet.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

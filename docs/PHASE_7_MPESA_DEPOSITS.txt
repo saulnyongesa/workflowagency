@@ -1,0 +1,61 @@
+PHASE 7: M-PESA DEPOSITS
+========================
+
+Document date: 2026-06-28
+Status: Implemented foundation
+
+
+1. COMPLETED
+------------
+
+- Added M-Pesa transaction model.
+- Added STK Push helper.
+- Added OAuth token helper.
+- Added configurable Daraja endpoint paths.
+- Added activation STK Push page.
+- Added wallet deposit/recharge STK Push page.
+- Added transaction status page.
+- Added STK Push callback endpoint.
+- Added C2B validation endpoint.
+- Added C2B confirmation endpoint.
+- Added staff page for C2B URL registration.
+- Added idempotent payment success processing.
+- Added duplicate receipt protection.
+- Added C2B fallback using account references:
+  - `ACT000001` style activation reference
+  - `DEP000001` style deposit reference
+- Added unmatched C2B transaction storage.
+- Added tests for STK callback processing, C2B deposit processing, activation payment, and wallet crediting.
+
+
+2. IMPORTANT RULES
+------------------
+
+- Browser/STK request success does not credit the wallet.
+- Wallet credit happens only after successful callback processing.
+- M-Pesa receipt numbers are unique.
+- Duplicate callbacks are accepted but do not double-credit.
+- M-Pesa credentials must be stored in environment variables.
+- Callback URLs must be public HTTPS URLs in production.
+
+
+3. OFFICIAL REFERENCE
+---------------------
+
+Safaricom Daraja remains the official platform for M-Pesa API access:
+
+- https://developer.safaricom.co.ke/
+- https://developer.safaricom.co.ke/apis
+
+
+4. NEXT WORK
+------------
+
+Later phases should add:
+
+- M-Pesa transaction reconciliation command.
+- Transaction status query API.
+- B2C withdrawal integration.
+- Admin payment filters and exports.
+- Production callback domain setup on Heroku.
+

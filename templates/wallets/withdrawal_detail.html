@@ -1,0 +1,65 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Withdrawal | Workflow Agency{% endblock %}
+{% block eyebrow %}Payout status{% endblock %}
+{% block page_title %}Withdrawal #{{ withdrawal.pk }}{% endblock %}
+
+{% block app_content %}
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">{{ withdrawal.get_status_display }}</span>
+                <h2>KES {{ withdrawal.amount }}</h2>
+            </div>
+            <span class="badge text-bg-secondary">{{ withdrawal.get_status_display }}</span>
+        </div>
+        <div class="readiness-list">
+            <div>
+                <span>Phone number</span>
+                <strong>{{ withdrawal.phone_number }}</strong>
+            </div>
+            <div>
+                <span>Fee</span>
+                <strong>KES {{ withdrawal.fee }}</strong>
+            </div>
+            <div>
+                <span>Net amount</span>
+                <strong>KES {{ withdrawal.net_amount }}</strong>
+            </div>
+            <div>
+                <span>Payout reference</span>
+                <strong>{{ withdrawal.payout_reference|default:"Pending" }}</strong>
+            </div>
+            {% if withdrawal.rejection_reason %}
+                <div>
+                    <span>Review note</span>
+                    <strong>{{ withdrawal.rejection_reason }}</strong>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Timeline</span>
+                <h2>Review</h2>
+            </div>
+        </div>
+        <div class="readiness-list">
+            <div>
+                <span>Requested</span>
+                <strong>{{ withdrawal.created_at|date:"M d, Y H:i" }}</strong>
+            </div>
+            <div>
+                <span>Reviewed</span>
+                <strong>{{ withdrawal.reviewed_at|date:"M d, Y H:i"|default:"Pending" }}</strong>
+            </div>
+            <div>
+                <span>Paid</span>
+                <strong>{{ withdrawal.paid_at|date:"M d, Y H:i"|default:"Pending" }}</strong>
+            </div>
+        </div>
+    </aside>
+</section>
+{% endblock %}

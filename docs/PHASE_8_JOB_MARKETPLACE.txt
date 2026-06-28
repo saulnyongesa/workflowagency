@@ -1,0 +1,160 @@
+PHASE 8 - JOB MARKETPLACE
+=========================
+
+Status: Implemented
+Date: 2026-06-28
+
+
+1. GOAL
+-------
+
+Phase 8 builds the core earning marketplace where active users can browse open work, claim a limited slot, submit proof, and receive a wallet reward after approval.
+
+The main safety rule is that rewards are never posted directly to a balance. Approved rewards go through the wallet ledger using an idempotency key, so the same submission cannot double-credit the user.
+
+
+2. IMPLEMENTED FILES
+--------------------
+
+- `jobs/models.py`
+  - `JobCategory`
+  - `Job`
+  - `JobClaim`
+  - `JobSubmission`
+- `jobs/services.py`
+  - `claim_job`
+  - `submit_job_proof`
+  - `approve_submission`
+  - `reject_submission`
+  - `clone_job_as_new`
+- `jobs/views.py`
+  - job list
+  - job detail
+  - claim action
+  - proof submission
+  - user job history
+  - staff review queue
+  - approve/reject actions
+  - clone action
+- `jobs/admin.py`
+  - admin CRUD and bulk actions
+- `templates/jobs/`
+  - mobile-first marketplace and review pages
+- `config/urls.py`
+  - `/jobs/` route included
+
+
+3. DATA MODEL SUMMARY
+---------------------
+
+JobCategory:
+
+- Groups jobs into admin-managed sections such as Surveys, Testing, Ads, Data Entry, Product Reviews, and Chat Sessions.
+- Has `is_active` and `sort_order` for display control.
+
+Job:
+
+- Stores title, slug, category, job type, description, instructions, reward amount, worker limit, proof type, review mode, schedule, and status.
+- Tracks `claims_count`, `approved_count`, `pending_count`, and `rejected_count`.
+- Automatically becomes full when the worker limit is reached.
+
+JobClaim:
+
+- Records a user's reserved slot on a job.
+- Includes status, claim time, expiry time, submission time, and review time.
+- Enforces one claim per user per job.
+
+JobSubmission:
+
+- Stores the proof submitted against a claim.
+- Supports text proof, URL proof, file proof, or mixed text/URL proof.
+- Links to the ledger transaction created after approval.
+
+
+4. CLAIMING RULES
+-----------------
+
+A user can claim a job only when all these rules pass:
+
+- The user account status is active.
+- The job is published.
+- The job start time has passed.
+- The job is not expired.
+- The job still has open worker slots.
+- The user has not exceeded the daily claim limit.
+- Ad-watch jobs also respect the admin-set daily ad reward cap.
+- The user has not already claimed the same job.
+
+The claim operation uses a database transaction and row locking with `select_for_update()` to protect the final slot from being taken twice.
+
+
+5. SUBMISSION AND REVIEW
+------------------------
+
+Users submit proof based on the job proof type:
+
+- No proof
+- Text answer
+- URL
+- File upload
+- Text and URL
+
+Staff review pending submissions from the review queue.
+
+Approval:
+
+- Posts a `JOB_REWARD_APPROVED` ledger transaction.
+- Credits the user's available wallet balance.
+- Increases user lifetime earned amount.
+- Marks the claim and submission approved.
+- Decreases the job pending count and increases approved count.
+
+Rejection:
+
+- Requires a reason.
+- Does not post wallet rewards.
+- Marks the claim and submission rejected.
+- Allows the user-facing detail page to show the review note.
+
+
+6. ADMIN OPERATIONS
+-------------------
+
+Admin can:
+
+- Create categories.
+- Create and publish jobs.
+- Pause jobs.
+- Clone/reactivate a job as a new draft.
+- Set worker limits.
+- Set proof type.
+- Set review mode.
+- Set reward amount.
+- Review submitted proof.
+
+The clone action is useful when a survey or task is finished but the client wants to run the same task again with a new worker limit.
+
+
+7. TEST COVERAGE
+----------------
+
+Phase 8 tests cover:
+
+- Open job list rendering.
+- Locked users blocked from claiming jobs.
+- Claim count increments.
+- Full jobs close automatically.
+- Submission approval posts reward once.
+- Submission rejection stores reason without reward.
+- Staff review queue rendering.
+- Proof submission view creation.
+
+
+8. NEXT IMPROVEMENTS
+--------------------
+
+- Add pagination to job list and review queue before large-scale usage.
+- Add stronger fraud signals for repeated IP/device patterns.
+- Add job completion time checks.
+- Add richer per-job templates for surveys, quizzes, and ad timers.
+- Add CSV export for job performance.

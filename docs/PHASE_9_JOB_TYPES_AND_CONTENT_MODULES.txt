@@ -1,0 +1,176 @@
+PHASE 9 - JOB TYPES AND CONTENT MODULES
+=======================================
+
+Status: Implemented foundation
+Date: 2026-06-28
+
+
+1. GOAL
+-------
+
+Phase 9 adds the job-type foundation needed to support many earning categories without writing a new model for every campaign.
+
+The system now lets admin choose a job type, reward, worker limit, proof rule, and review mode from the admin dashboard. The amount per job remains fully admin-configurable.
+
+
+2. IMPLEMENTED JOB TYPES
+------------------------
+
+The `Job.JobType` choices currently include:
+
+- Survey
+- Watch and earn
+- Trivia
+- Blogging/social proof
+- App/game testing
+- Website feedback
+- Data entry/tagging
+- Transcription
+- Translation
+- Product review
+- Paid chat session
+- Product affiliate
+- Other
+
+
+3. RECOMMENDED STARTING REWARD RANGES
+-------------------------------------
+
+These are suggested ranges for admin planning only. They are not fixed promises and should be adjusted based on actual client revenue, ad revenue, task quality, and platform reserves.
+
+Survey:
+
+- Suggested range: KES 10-150
+- Proof: text, URL, or survey completion code
+- Review: manual for high-value surveys, auto only for trusted survey providers
+
+Watch and earn:
+
+- Suggested range: KES 0.50-10
+- Proof: timer/video completion event in a later phase
+- Rule: strict daily cap to avoid draining the platform float
+
+Trivia:
+
+- Suggested range: KES 2-30
+- Proof: quiz score or answer set
+- Rule: admin-defined pass mark should be added in a future quiz module
+
+Blogging/social proof:
+
+- Suggested range: KES 5-60
+- Proof: URL or screenshot
+- Rule: admin verifies the content exists and matches instructions
+
+App/game testing:
+
+- Suggested range: KES 50-500
+- Proof: test report, device info, screenshots, and issue notes
+- Rule: reward should depend on report quality and testing time
+
+Website feedback:
+
+- Suggested range: KES 30-300
+- Proof: checklist answer, text feedback, screenshots, or screen recording link
+- Rule: duplicate low-quality answers should be rejected
+
+Data entry/tagging:
+
+- Suggested range: KES 2-50 per batch
+- Proof: completed batch reference
+- Rule: accuracy threshold is needed before auto approval
+
+Transcription:
+
+- Suggested range: KES 20-150 per short clip
+- Proof: transcript text or file
+- Rule: admin checks accuracy before payout
+
+Translation:
+
+- Suggested range: KES 20-300
+- Proof: translated text or document
+- Rule: admin or language reviewer checks quality
+
+Product review:
+
+- Suggested range: KES 20-150
+- Proof: review URL, screenshot, or product purchase reference
+- Rule: pay only for genuine reviews that obey platform rules
+
+Paid chat session:
+
+- Suggested range: KES 20-200 per approved session
+- Proof: session record, duration, and client approval
+- Rule: must use clear conduct, consent, and safety policies
+
+Product affiliate:
+
+- Suggested range: fixed amount or percent
+- Proof: confirmed sale
+- Rule: release after refund/reversal window
+
+
+4. PROOF TYPES
+--------------
+
+Supported proof types:
+
+- None
+- Text
+- URL
+- File
+- Text and URL
+
+The proof type determines which fields are required on the user submission form.
+
+File proof is stored through Django's configured file storage. In production, uploaded proof should use Cloudinary because Heroku dynos have ephemeral local storage.
+
+
+5. REVIEW MODES
+---------------
+
+Manual review:
+
+- Default safe mode.
+- Staff must approve before a reward posts.
+- Recommended for most jobs until fraud controls are mature.
+
+Auto approve:
+
+- Can immediately approve and credit the user after proof submission.
+- Best used only for low-value trusted jobs.
+
+Small job auto approval:
+
+- Admin setting can auto-approve jobs under a configured reward threshold.
+- This should be used carefully because it can create fast financial leakage if abused.
+
+
+6. CURRENT LIMITATIONS
+----------------------
+
+The current phase is a strong foundation, not the final specialized content engine.
+
+Still planned for later phases:
+
+- Survey question builder.
+- Quiz/trivia scoring.
+- Watch-ad timer and focus validation.
+- Chat-session booking and duration records.
+- Data entry batch validation.
+- Product affiliate sale matching.
+- Fraud scoring per job type.
+
+
+7. ADMIN GUIDANCE
+-----------------
+
+To keep the platform sustainable:
+
+- Keep job rewards lower than real revenue per task.
+- Avoid paying ad-watch rewards higher than ad revenue.
+- Use manual review for new users or high-value jobs.
+- Keep daily caps strict.
+- Clone old jobs instead of editing finished campaigns when a new client batch starts.
+- Pause withdrawals if pending job rewards and withdrawal requests exceed confirmed cash reserves.

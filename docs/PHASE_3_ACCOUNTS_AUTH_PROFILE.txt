@@ -1,0 +1,80 @@
+PHASE 3: ACCOUNTS, AUTHENTICATION, AND PROFILE
+==============================================
+
+Document date: 2026-06-28
+Status: Implemented foundation
+
+
+1. COMPLETED
+------------
+
+- Added registration form.
+- Added login form using username, email, or phone number.
+- Added function-based register view.
+- Added function-based profile view.
+- Added function-based password change view.
+- Added profile edit page.
+- Added password change page.
+- Added phone number normalization.
+- Added referral code capture during registration.
+- Added automatic referral code generation.
+- Added account status display in dashboard shell.
+- Added profile referral-code copy UI.
+- Added admin user list/search configuration.
+- Added tests for:
+  - registration
+  - locked default account state
+  - email login
+  - phone login
+  - profile update
+  - dashboard authentication
+
+
+2. USER STATUS RULES IN PLACE
+-----------------------------
+
+New registered users start with:
+
+- Account status: locked.
+- Activation status: not activated.
+- KYC status: not required.
+
+This supports the planned activation flow in later phases.
+
+
+3. LOGIN IDENTIFIERS
+--------------------
+
+Users can authenticate with:
+
+- Username.
+- Email address.
+- Phone number.
+
+Phone numbers are normalized into Kenyan international format where possible.
+
+
+4. IMPORTANT LIMITS
+-------------------
+
+Phase 3 does not yet include:
+
+- Email verification.
+- SMS OTP.
+- Password reset email flow.
+- Activation payment.
+- Withdrawal KYC.
+- Fraud device checks.
+
+These belong to later security/payment phases.
+
+
+5. NEXT BACKEND WORK
+--------------------
+
+Recommended next implementation phase:
+
+- Phase 4: admin settings and audit logs.
+- Phase 5: wallet and immutable ledger.
+- Phase 6: activation and referral bonus rules.
+

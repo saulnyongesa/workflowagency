@@ -1,0 +1,48 @@
+PHASE 6: ACTIVATION AND REFERRALS
+=================================
+
+Document date: 2026-06-28
+Status: Implemented foundation
+
+
+1. COMPLETED
+------------
+
+- Added account activation page.
+- Added activation fee lookup from finance settings.
+- Added activation M-Pesa transaction records.
+- Added activation credit posting through the wallet ledger.
+- Added activation credit mode support:
+  - platform credit
+  - withdrawable balance
+  - mixed
+- Added user status change from locked to active after successful activation payment.
+- Added referral bonus model.
+- Added referral bonus creation after successful referred-user activation.
+- Added referral bonus release delay support.
+- Added referral bonus release service.
+- Added management command: `release_referral_bonuses`.
+- Added referral dashboard with invite code, direct referrals, and bonus history.
+- Added tests for activation credit, referral bonus creation, release, and dashboard rendering.
+
+
+2. IMPORTANT RULES
+------------------
+
+- Users are activated only after a successful trusted payment processor call.
+- Activation credits are posted through immutable ledger entries.
+- Referral bonuses are created only after activation payment succeeds.
+- Referral bonuses can remain pending until release time.
+- Released referral bonuses credit the referrer's available wallet balance.
+
+
+3. NEXT WORK
+------------
+
+Later phases should add:
+
+- Fraud checks before referral bonus release.
+- Admin review of suspicious referrals.
+- Optional phone/OTP verification before activation benefits become withdrawable.
+- Scheduled Heroku command for `release_referral_bonuses`.
+
