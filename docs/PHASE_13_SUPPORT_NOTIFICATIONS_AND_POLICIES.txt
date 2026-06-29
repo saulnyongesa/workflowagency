@@ -1,0 +1,113 @@
+PHASE 13 - SUPPORT, NOTIFICATIONS, AND POLICIES
+===============================================
+
+Status: Implemented foundation
+Date: 2026-06-29
+
+
+1. GOAL
+-------
+
+Phase 13 makes the system easier to support and explain. Users can view FAQs, published policies, announcements, and create support tickets. Staff can review tickets and reply from a support queue.
+
+
+2. IMPLEMENTED FILES
+--------------------
+
+- `support/models.py`
+  - `Announcement`
+  - `FAQ`
+  - `PolicyPage`
+  - `SupportTicket`
+  - `SupportTicketReply`
+- `support/forms.py`
+  - user ticket form
+  - reply form
+  - staff update form
+- `support/views.py`
+  - support center
+  - ticket list/create/detail
+  - staff ticket queue
+  - policy list/detail
+  - FAQ list
+- `support/admin.py`
+- `support/urls.py`
+- `templates/support/`
+- `support/tests.py`
+
+
+3. USER FLOW
+------------
+
+1. User opens Support.
+2. User sees announcements, FAQs, policy links, and recent tickets.
+3. User creates a ticket with subject, category, priority, contact details, and message.
+4. User can view ticket conversation and reply.
+5. Staff reply moves the ticket to waiting for user.
+6. User reply moves it back to waiting for staff.
+
+
+4. STAFF FLOW
+-------------
+
+Staff can:
+
+- View open support queue.
+- Filter by status.
+- Open ticket detail.
+- Reply to the user.
+- Assign ticket to a staff user.
+- Add admin notes.
+- Mark ticket resolved or closed.
+
+
+5. POLICY PAGES
+---------------
+
+Admin can publish:
+
+- Terms of service.
+- Privacy policy.
+- Withdrawal policy.
+- Job reward policy.
+- Referral policy.
+- Support policy.
+- Other policy pages.
+
+Policy pages are public so users can review rules before and after registration.
+
+
+6. ANNOUNCEMENTS
+----------------
+
+Announcements provide a lightweight notification foundation.
+
+Supported audiences:
+
+- all users
+- active users
+- staff only
+
+Future email/SMS/push notification hooks can use this model as a source of publishable notices.
+
+
+7. TEST COVERAGE
+----------------
+
+Tests cover:
+
+- Support center login requirement.
+- Ticket creation with initial message.
+- Staff replies and status movement.
+- Staff support queue.
+- Public policy and FAQ pages.
+
+
+8. NEXT IMPROVEMENTS
+--------------------
+
+- Add email notifications for staff replies.
+- Add WhatsApp group link management.
+- Add ticket attachments through Cloudinary.
+- Add ticket SLA timers.
+- Add policy acceptance logs for terms and withdrawal policy changes.

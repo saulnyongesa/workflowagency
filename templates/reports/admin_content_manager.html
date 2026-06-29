@@ -1,0 +1,145 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Manage Content | Workflow Agency{% endblock %}
+{% block eyebrow %}Admin{% endblock %}
+{% block page_title %}Manage support content{% endblock %}
+
+{% block app_content %}
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Published help</span>
+                <h2>Recent content</h2>
+            </div>
+            <a class="btn btn-outline-primary btn-sm" href="{% url 'support_center' %}">Support center</a>
+        </div>
+        <div class="table-responsive mb-3">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Title</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for announcement in announcements %}
+                        <tr>
+                            <td>Announcement</td>
+                            <td><a href="{% url 'admin_content_edit' 'announcement' announcement.pk %}">{{ announcement.title }}</a></td>
+                            <td>{% if announcement.is_published %}Published{% else %}Draft{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                    {% for faq in faqs %}
+                        <tr>
+                            <td>FAQ</td>
+                            <td><a href="{% url 'admin_content_edit' 'faq' faq.pk %}">{{ faq.question }}</a></td>
+                            <td>{% if faq.is_published %}Published{% else %}Draft{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                    {% for policy in policies %}
+                        <tr>
+                            <td>Policy</td>
+                            <td><a href="{% url 'admin_content_edit' 'policy' policy.pk %}">{{ policy.title }}</a></td>
+                            <td>{% if policy.is_published %}Published{% else %}Draft{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Announcement</span>
+                <h2>New update</h2>
+            </div>
+        </div>
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="announcement">
+            {% for field in announcement_form %}
+                <div class="col-12">
+                    {% if field.field.widget.input_type == "checkbox" %}
+                        <div class="form-check">
+                            {{ field }}
+                            <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        </div>
+                    {% else %}
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                    {% endif %}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+            <div class="col-12 d-grid">
+                <button class="btn btn-primary" type="submit">Save announcement</button>
+            </div>
+        </form>
+    </aside>
+</section>
+
+<section class="dashboard-grid mt-3">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">FAQ</span>
+                <h2>New FAQ</h2>
+            </div>
+        </div>
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="faq">
+            {% for field in faq_form %}
+                <div class="{% if field.name == 'answer' %}col-12{% else %}col-md-6{% endif %}">
+                    {% if field.field.widget.input_type == "checkbox" %}
+                        <div class="form-check mt-4">
+                            {{ field }}
+                            <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        </div>
+                    {% else %}
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                    {% endif %}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+            <div class="col-12">
+                <button class="btn btn-primary" type="submit">Save FAQ</button>
+            </div>
+        </form>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Policy</span>
+                <h2>New policy</h2>
+            </div>
+        </div>
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="policy">
+            {% for field in policy_form %}
+                <div class="col-12">
+                    {% if field.field.widget.input_type == "checkbox" %}
+                        <div class="form-check">
+                            {{ field }}
+                            <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        </div>
+                    {% else %}
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                    {% endif %}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+            <div class="col-12 d-grid">
+                <button class="btn btn-primary" type="submit">Save policy</button>
+            </div>
+        </form>
+    </aside>
+</section>
+{% endblock %}

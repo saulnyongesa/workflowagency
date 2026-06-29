@@ -61,7 +61,7 @@ class RegistrationForm(BootstrapFormMixin, forms.ModelForm):
     )
     referral_code = forms.CharField(
         required=False,
-        widget=forms.TextInput(attrs={"placeholder": "Optional invite code"}),
+        widget=forms.TextInput(attrs={"placeholder": "Required referral code", "required": "required"}),
     )
 
     class Meta:
@@ -89,8 +89,14 @@ class RegistrationForm(BootstrapFormMixin, forms.ModelForm):
             "country": forms.TextInput(attrs={"placeholder": "Kenya"}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, locked_referral_code=None, **kwargs):
+        self.locked_referral_code = (locked_referral_code or "").strip().upper()
         super().__init__(*args, **kwargs)
+        if self.locked_referral_code:
+            self.fields["referral_code"].initial = self.locked_referral_code
+            self.fields["referral_code"].widget.attrs["readonly"] = "readonly"
+            self.fields["referral_code"].widget.attrs["value"] = self.locked_referral_code
+            self.fields["referral_code"].help_text = "Referral link applied."
         self.apply_bootstrap()
 
     def clean_email(self):
@@ -109,9 +115,9 @@ class RegistrationForm(BootstrapFormMixin, forms.ModelForm):
         return normalized
 
     def clean_referral_code(self):
-        referral_code = self.cleaned_data.get("referral_code", "").strip().upper()
+        referral_code = self.locked_referral_code or self.cleaned_data.get("referral_code", "").strip().upper()
         if not referral_code:
-            return ""
+            raise ValidationError("Referral code is required to create an account.")
         if not User.objects.filter(referral_code__iexact=referral_code).exists():
             raise ValidationError("This referral code was not found.")
         return referral_code
@@ -121,6 +127,19 @@ class RegistrationForm(BootstrapFormMixin, forms.ModelForm):
         password2 = self.cleaned_data.get("password2")
         if password1 and password2 and password1 != password2:
             raise ValidationError("The two password fields did not match.")
+        if password2:
+            checks = [
+                (any(char.islower() for char in password2), "Password must include a lowercase letter."),
+                (any(char.isupper() for char in password2), "Password must include an uppercase letter."),
+                (any(char.isdigit() for char in password2), "Password must include a number."),
+                (
+                    any(not char.isalnum() for char in password2),
+                    "Password must include a symbol such as !, @, #, or %.",
+                ),
+            ]
+            for passed, message in checks:
+                if not passed:
+                    raise ValidationError(message)
         password_validation.validate_password(password2, self.instance)
         return password2
 
@@ -179,3 +198,32 @@ class StyledPasswordChangeForm(BootstrapFormMixin, PasswordChangeForm):
             else:
                 field.widget.attrs["autocomplete"] = "new-password"
         self.apply_bootstrap()
+
+
+class ReferralCompletionForm(BootstrapFormMixin, forms.Form):
+    referral_code = forms.CharField(
+        widget=forms.TextInput(attrs={"placeholder": "Enter referral code"}),
+    )
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+        self.apply_bootstrap()
+
+    def clean_referral_code(self):
+        referral_code = self.cleaned_data.get("referral_code", "").strip().upper()
+        if not referral_code:
+            raise ValidationError("Referral code is required to continue.")
+        referrer = User.objects.filter(referral_code__iexact=referral_code).first()
+        if not referrer:
+            raise ValidationError("This referral code was not found.")
+        if self.user and referrer.pk == self.user.pk:
+            raise ValidationError("You cannot use your own referral code.")
+        return referral_code
+
+    def save(self):
+        referral_code = self.cleaned_data["referral_code"]
+        referrer = User.objects.get(referral_code__iexact=referral_code)
+        self.user.referred_by = referrer
+        self.user.save(update_fields=["referred_by"])
+        return self.user

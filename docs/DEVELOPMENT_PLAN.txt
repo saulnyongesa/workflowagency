@@ -5,12 +5,18 @@ Document date: 2026-06-28
 Stack: Django, function-based views, HTML, Bootstrap, vanilla JavaScript, PostgreSQL, Cloudinary, M-Pesa
 Design direction: modern AI-work marketplace inspired by Outlier AI and Handshake AI
 
-Implementation status as of 2026-06-28:
+Implementation status as of 2026-06-29:
 
-- Phase 0 through Phase 10 foundations are implemented in code and documented.
+- Phase 0 through Phase 15 foundations are implemented in code and documented.
 - Phase 8 adds the job marketplace, proof submission, review, reward posting, and clone/reactivate foundation.
 - Phase 9 adds the configurable job-type foundation and payout-rule guidance.
 - Phase 10 adds manual withdrawal requests, locked funds, admin review, paid/rejected outcomes, and solvency checks.
+- Phase 11 adds product store, product library, wallet purchases, and product commissions.
+- Phase 12 adds richer admin finance reporting and ledger CSV export.
+- Phase 13 adds announcements, FAQs, policy pages, support tickets, and staff ticket review.
+- Phase 14 adds deployment security hardening, secret handling, legacy sample cleanup, and deployment env templates.
+- Phase 15 adds PageSpeed/Core Web Vitals optimization foundations, pagination, static asset readiness, and deployment performance guidance.
+- Phase 16 testing/QA is intentionally skipped as a formal phase for now, but critical automated tests remain in the repository and should still be run before deployment.
 
 
 1. DESIGN DIRECTION

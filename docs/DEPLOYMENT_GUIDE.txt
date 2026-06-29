@@ -1,0 +1,149 @@
+WORKFLOW AGENCY DEPLOYMENT GUIDE
+================================
+
+Date: 2026-06-29
+
+
+1. DEPLOYMENT STRATEGY
+----------------------
+
+Prototype demo:
+
+- Vercel
+- Bundled `prototype.sqlite3` demo database
+- Cloudinary
+- M-Pesa sandbox unless live callback approval is ready
+
+Production:
+
+- Heroku
+- Heroku Postgres
+- Cloudinary
+- Safaricom Daraja live credentials
+- HTTPS custom domain
+
+
+2. IMPORTANT PLATFORM NOTES
+---------------------------
+
+Vercel:
+
+- Official Vercel Django support detects `manage.py` and reads the WSGI/ASGI entrypoint.
+- Vercel Python runtime supports WSGI/ASGI apps and currently supports Python 3.12, 3.13, and 3.14.
+- Vercel automatically collects and serves Django static files when `STATIC_ROOT` is configured.
+- Vercel Functions are serverless, so local SQLite/media files should not be treated as persistent.
+- For this client prototype, `prototype.sqlite3` is bundled as a read-only seed database and copied to `/tmp` at runtime.
+- Demo edits may reset after cold starts or redeploys. Use PostgreSQL for any persistent staging or production deployment.
+
+Heroku:
+
+- Heroku Django apps require a `Procfile`.
+- Gunicorn is the recommended production web server.
+- Heroku stores secrets as config vars.
+- Heroku runs `collectstatic` during builds when static files are configured.
+- WhiteNoise is the recommended simple static-file path for Django on Heroku.
+
+
+3. FILES INCLUDED
+-----------------
+
+- `Procfile`
+  - `release: python manage.py migrate --noinput`
+  - `web: gunicorn config.wsgi --log-file -`
+- `runtime.txt`
+- `.python-version`
+- `requirements.txt`
+- `pyproject.toml`
+- `.env.example`
+- `.env.vercel.prototype`
+- `prototype.sqlite3`
+- `core/management/commands/prepare_prototype_database.py`
+
+
+4. VERCEL PROTOTYPE STEPS
+-------------------------
+
+1. Prepare or refresh the bundled prototype database locally:
+
+   `python manage.py prepare_prototype_database --reset-samples --jobs 5000 --surveys 5000 --products 5000`
+
+2. Confirm `prototype.sqlite3` exists at the repository root.
+3. Push the repository to GitHub.
+4. Import the repository into Vercel.
+5. In Vercel Project Settings, add environment variables from `.env.vercel.prototype`.
+6. Keep `DATABASE_URL` empty for the bundled SQLite prototype.
+7. Set `VERCEL_BUNDLED_SQLITE=True`.
+8. Set `CLOUDINARY_URL` for uploads if the demo will upload media.
+9. Set `MPESA_CALLBACK_BASE_URL` to the Vercel deployment URL.
+10. Deploy.
+11. Smoke test:
+
+    - `/`
+    - `/accounts/register/`
+    - `/accounts/login/`
+    - `/dashboard/`
+    - `/jobs/`
+    - `/products/`
+    - `/reports/dashboard/`
+
+Demo credentials:
+
+- `demo_admin` / `DemoAdmin123!`
+- `demo_worker` / `DemoUser123!`
+- `demo_referrer` / `DemoUser123!`
+- `demo_locked` / `DemoUser123!`
+
+The bundled database currently contains demo users, 5,000 jobs, 5,000 surveys, and 5,000 products.
+
+
+5. HEROKU PRODUCTION STEPS
+--------------------------
+
+1. Create Heroku app.
+2. Add Heroku Postgres.
+3. Add all config vars from `.env.example`, using real production values.
+4. Set:
+
+   - `DEBUG=False`
+   - `ALLOWED_HOSTS=your-domain.com,your-app.herokuapp.com`
+   - `CSRF_TRUSTED_ORIGINS=https://your-domain.com,https://your-app.herokuapp.com`
+   - `SECURE_SSL_REDIRECT=True`
+   - `SESSION_COOKIE_SECURE=True`
+   - `CSRF_COOKIE_SECURE=True`
+   - `MPESA_CALLBACK_BASE_URL=https://your-domain.com`
+
+5. Push to Heroku.
+6. Heroku release phase runs migrations.
+7. Heroku build runs collectstatic.
+8. Create superuser:
+
+   `heroku run python manage.py createsuperuser`
+
+9. Register M-Pesa callback URLs from the admin C2B page or CLI flow.
+10. Run smoke tests and PageSpeed tests.
+
+
+6. CALLBACK URLS
+----------------
+
+Set the callback base URL to the deployed domain:
+
+- Prototype: `https://your-vercel-project.vercel.app`
+- Production: `https://your-production-domain.com`
+
+M-Pesa routes are under the `payments` app and must remain public, idempotent, and logged.
+
+
+7. DO NOT COMMIT
+----------------
+
+Never commit:
+
+- `.env`
+- `.env.local`
+- `.vercel/`
+- real M-Pesa credentials
+- Cloudinary API secrets
+- production database URLs
+- SQLite production data
+- media uploads

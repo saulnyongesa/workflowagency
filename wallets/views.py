@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
+from core.services import get_finance_settings
 from .forms import AdminWalletAdjustmentForm, WithdrawalPaidForm, WithdrawalRejectForm, WithdrawalRequestForm
 from .models import LedgerTransaction, WithdrawalRequest
 from .services import (
@@ -31,6 +32,9 @@ def wallet_dashboard(request):
 
 @login_required
 def withdrawal_request_view(request):
+    wallet = get_wallet(request.user)
+    finance_settings = get_finance_settings()
+    can_request_withdrawal = wallet.available_balance >= finance_settings.minimum_withdrawal_amount
     form = WithdrawalRequestForm(request.POST or None, initial_phone=request.user.phone_number or "")
     if request.method == "POST" and form.is_valid():
         try:
@@ -44,7 +48,24 @@ def withdrawal_request_view(request):
         else:
             messages.success(request, "Withdrawal request submitted for admin review.")
             return redirect("withdrawal_detail", pk=withdrawal.pk)
-    return render(request, "wallets/withdrawal_request.html", {"form": form})
+    withdrawals = request.user.withdrawal_requests.all()[:8]
+    return render(
+        request,
+        "wallets/withdrawal_request.html",
+        {
+            "form": form,
+            "wallet": wallet,
+            "finance_settings": finance_settings,
+            "can_request_withdrawal": can_request_withdrawal,
+            "withdrawals": withdrawals,
+        },
+    )
+
+
+@login_required
+def withdrawal_history(request):
+    withdrawals = request.user.withdrawal_requests.all()
+    return render(request, "wallets/withdrawal_history.html", {"withdrawals": withdrawals})
 
 
 @login_required

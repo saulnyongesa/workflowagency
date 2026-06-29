@@ -22,11 +22,18 @@ class CorePageTests(TestCase):
         self.assertIn(reverse("login"), response["Location"])
 
     def test_authenticated_dashboard_renders(self):
+        referrer = User.objects.create_user(
+            username="dashboardreferrer",
+            email="dashboardreferrer@example.com",
+            phone_number="254744444443",
+            password="StrongPass123!",
+        )
         user = User.objects.create_user(
             username="dashboarduser",
             email="dashboarduser@example.com",
             phone_number="254744444444",
             password="StrongPass123!",
+            referred_by=referrer,
         )
         self.client.force_login(user)
 

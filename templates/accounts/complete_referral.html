@@ -1,0 +1,25 @@
+{% extends "layouts/auth.html" %}
+
+{% block title %}Referral Required | Workflow Agency{% endblock %}
+
+{% block auth_content %}
+<div class="auth-card">
+    <span class="eyebrow">Referral required</span>
+    <h1 class="h3 mt-2">Add your referral code</h1>
+    <p class="text-secondary">Your account was created without a referrer. Add a valid referral code to continue using the platform.</p>
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="mb-3">
+            <label class="form-label" for="{{ form.referral_code.id_for_label }}">Referral code</label>
+            {{ form.referral_code }}
+            {{ form.referral_code.errors }}
+        </div>
+        <button class="btn btn-primary w-100" type="submit">Save referral code</button>
+    </form>
+    <form method="post" action="{% url 'logout' %}" class="mt-3">
+        {% csrf_token %}
+        <button class="btn btn-outline-secondary w-100" type="submit">Sign out</button>
+    </form>
+</div>
+{% endblock %}

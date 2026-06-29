@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
 from django.db.models import F, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -30,11 +31,17 @@ def job_list(request):
     if q:
         jobs = jobs.filter(title__icontains=q)
     categories = JobCategory.objects.filter(is_active=True)
+    paginator = Paginator(jobs, 25)
+    page_obj = paginator.get_page(request.GET.get("page"))
+    query_params = request.GET.copy()
+    query_params.pop("page", None)
     return render(
         request,
         "jobs/job_list.html",
         {
-            "jobs": jobs,
+            "jobs": page_obj.object_list,
+            "page_obj": page_obj,
+            "page_query": query_params.urlencode(),
             "categories": categories,
             "job_types": Job.JobType.choices,
             "selected_category": category_slug,
@@ -142,4 +149,4 @@ def clone_job_view(request, job_id):
     job = get_object_or_404(Job, pk=job_id)
     clone = clone_job_as_new(job=job, created_by=request.user)
     messages.success(request, "Job cloned as a new draft.")
-    return redirect("admin:jobs_job_change", object_id=clone.pk)
+    return redirect("admin_job_edit", job_id=clone.pk)

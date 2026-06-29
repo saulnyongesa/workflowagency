@@ -1,0 +1,80 @@
+PHASE 14 - SECURITY HARDENING
+=============================
+
+Status: Implemented deployment-readiness foundation
+Date: 2026-06-29
+
+
+1. GOAL
+-------
+
+Phase 14 prepares the prototype for public review and later Heroku production deployment without exposing secrets, stale sample code, or unsafe deployment defaults.
+
+
+2. IMPLEMENTED CHANGES
+----------------------
+
+- Removed legacy standalone M-Pesa sample files from the repository root:
+  - `mpesa_config.py`
+  - `mpesa_utils.py`
+  - `views.py`
+- Kept the active M-Pesa implementation inside the `payments` app.
+- Added production-oriented security settings:
+  - secure cookie flags controlled by environment variables
+  - HTTPS redirect controlled by environment variable
+  - HSTS controlled by environment variables
+  - content type nosniff
+  - same-origin referrer policy
+- Added `.env.local`, `.env.*.local`, and `.vercel/` to `.gitignore`.
+- Added `release: python manage.py migrate --noinput` to `Procfile` so Heroku can run migrations during release.
+- Added `pyproject.toml` with Vercel Django entrypoint metadata.
+- Added `.env.vercel.prototype` placeholder template for Vercel environment variables.
+- Added a bundled SQLite prototype path for Vercel using `prototype.sqlite3` copied to runtime temp storage.
+- Added `prepare_prototype_database` to regenerate demo users and marketplace content before deployment.
+- Confirmed no real secrets are committed in the new deployment env template.
+
+
+3. PRODUCTION RULES
+-------------------
+
+- Keep `DEBUG=False` outside local development.
+- Store all secrets in platform environment variables.
+- Use PostgreSQL for production and any persistent staging environment.
+- Use bundled SQLite only for the Vercel client prototype demo.
+- Use Cloudinary for uploaded media.
+- Keep M-Pesa credentials in environment variables only.
+- Keep M-Pesa callbacks idempotent and ledger-backed.
+- Do not use bundled SQLite or local media files for live production.
+
+
+4. ADMIN AND MONEY SAFETY
+-------------------------
+
+Already implemented safety controls include:
+
+- Finance setting changes are audited.
+- Wallet adjustments are audited.
+- Manual account activation records an activation transaction before crediting the wallet.
+- Withdrawal requests lock funds before admin review.
+- Withdrawal approval checks platform reserve safety.
+- Job claiming can be disabled globally without deleting jobs.
+
+
+5. REMAINING SECURITY IMPROVEMENTS
+----------------------------------
+
+These are recommended before live production:
+
+- Add login and registration rate limiting.
+- Add stronger admin role permissions beyond `is_staff`.
+- Add OTP or approval step for withdrawals.
+- Add device/IP fraud signals.
+- Add production logging and alerting.
+- Add database backups and restore drills.
+- Add policy acceptance logs for updated terms.
+
+
+6. EXIT STATUS
+--------------
+
+Phase 14 is complete for prototype deployment readiness. Remaining security items are production-hardening tasks and should be completed before public launch.

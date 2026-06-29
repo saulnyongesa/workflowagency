@@ -1,0 +1,65 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Support Queue | Workflow Agency{% endblock %}
+{% block eyebrow %}Admin support{% endblock %}
+{% block page_title %}Support queue{% endblock %}
+
+{% block app_content %}
+<section class="panel mb-3 filter-panel {% if selected_status %}is-open{% endif %}">
+    <button class="filter-toggle" type="button" data-filter-toggle>
+        <span><i data-lucide="sliders-horizontal"></i>Filters</span>
+        <i data-lucide="chevron-down"></i>
+    </button>
+    <form class="row g-2 align-items-end filter-body" method="get">
+        <div class="col-md-10">
+            <label class="form-label" for="status">Status</label>
+            <select class="form-select" id="status" name="status">
+                <option value="">Open work</option>
+                {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button class="btn btn-primary" type="submit">Filter</button>
+        </div>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">Tickets</span>
+            <h2>Support queue</h2>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>User</th>
+                    <th>Subject</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                    <tr>
+                        <td>{{ ticket.created_at|date:"M d, Y H:i" }}</td>
+                        <td>{{ ticket.user.username }}</td>
+                        <td><a href="{% url 'support_ticket_detail' ticket.pk %}">{{ ticket.subject }}</a></td>
+                        <td>{{ ticket.get_priority_display }}</td>
+                        <td>{{ ticket.get_status_display }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-secondary py-4">No tickets match this filter.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}{{ policy.title }} | Workflow Agency{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <article class="panel">
+            <div class="panel-heading">
+                <div>
+                    <span class="eyebrow">{{ policy.get_policy_type_display }}</span>
+                    <h1 class="fw-bold">{{ policy.title }}</h1>
+                </div>
+                <span class="badge text-bg-secondary">v{{ policy.version }}</span>
+            </div>
+            {% if policy.summary %}
+                <p class="text-secondary">{{ policy.summary }}</p>
+            {% endif %}
+            <div class="policy-body">{{ policy.body|linebreaks }}</div>
+        </article>
+    </div>
+</section>
+{% endblock %}

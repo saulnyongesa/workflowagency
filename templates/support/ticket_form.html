@@ -1,0 +1,54 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}New Ticket | Workflow Agency{% endblock %}
+{% block eyebrow %}Support{% endblock %}
+{% block page_title %}New ticket{% endblock %}
+
+{% block app_content %}
+<section class="panel narrow-panel">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">Account help</span>
+            <h2>Tell support what happened</h2>
+        </div>
+    </div>
+    <form method="post" class="row g-3">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="col-12">
+            <label class="form-label" for="{{ form.subject.id_for_label }}">Subject</label>
+            {{ form.subject }}
+            {{ form.subject.errors }}
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" for="{{ form.category.id_for_label }}">Category</label>
+            {{ form.category }}
+            {{ form.category.errors }}
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" for="{{ form.priority.id_for_label }}">Priority</label>
+            {{ form.priority }}
+            {{ form.priority.errors }}
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" for="{{ form.contact_email.id_for_label }}">Contact email</label>
+            {{ form.contact_email }}
+            {{ form.contact_email.errors }}
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" for="{{ form.contact_phone.id_for_label }}">Contact phone</label>
+            {{ form.contact_phone }}
+            {{ form.contact_phone.errors }}
+        </div>
+        <div class="col-12">
+            <label class="form-label" for="{{ form.message.id_for_label }}">Message</label>
+            {{ form.message }}
+            {{ form.message.errors }}
+        </div>
+        <div class="col-12 d-flex gap-2">
+            <button class="btn btn-primary" type="submit">Create ticket</button>
+            <a class="btn btn-outline-secondary" href="{% url 'support_center' %}">Cancel</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

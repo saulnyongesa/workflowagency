@@ -7,7 +7,10 @@
     <span class="eyebrow">Start earning safely</span>
     <h1 class="h3 mt-2">Create your account</h1>
     <p class="text-secondary">Your account starts locked until activation payment is confirmed.</p>
-    <form method="post" class="mt-4" novalidate>
+    {% if referral_code_applied %}
+        <div class="alert alert-success mt-3 mb-0">Referral link applied. Continue creating your account.</div>
+    {% endif %}
+    <form method="post" class="mt-4 registration-form" novalidate data-registration-form>
         {% csrf_token %}
         {% if form.non_field_errors %}
             <div class="alert alert-danger">{{ form.non_field_errors }}</div>
@@ -37,19 +40,31 @@
                 <label class="form-label" for="{{ form.password1.id_for_label }}">Password</label>
                 {{ form.password1 }}
                 {{ form.password1.errors }}
+                <div class="password-meter mt-2" data-password-meter>
+                    <div class="password-meter-bar"><span data-password-meter-bar></span></div>
+                    <ul class="password-checklist" data-password-checklist>
+                        <li data-password-rule="length">At least 8 characters</li>
+                        <li data-password-rule="upper">Uppercase letter</li>
+                        <li data-password-rule="lower">Lowercase letter</li>
+                        <li data-password-rule="digit">Number</li>
+                        <li data-password-rule="symbol">Symbol</li>
+                    </ul>
+                </div>
             </div>
             <div class="col-md-6">
                 <label class="form-label" for="{{ form.password2.id_for_label }}">Confirm password</label>
                 {{ form.password2 }}
                 {{ form.password2.errors }}
+                <div class="form-text" data-password-match>Passwords must match.</div>
             </div>
             <div class="col-12">
                 <label class="form-label" for="{{ form.referral_code.id_for_label }}">Referral code</label>
                 {{ form.referral_code }}
                 {{ form.referral_code.errors }}
+                <div class="form-text" data-referral-status>{{ form.referral_code.help_text|default:"A valid referral code is required before registration." }}</div>
             </div>
         </div>
-        <button class="btn btn-primary w-100 mt-4" type="submit">Create account</button>
+        <button class="btn btn-primary w-100 mt-4" type="submit" data-registration-submit>Create account</button>
     </form>
     <p class="text-secondary text-center mt-3 mb-0">Already registered? <a href="{% url 'login' %}">Login</a></p>
 </div>

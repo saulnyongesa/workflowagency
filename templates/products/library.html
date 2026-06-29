@@ -1,0 +1,46 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Product Library | Workflow Agency{% endblock %}
+{% block eyebrow %}Library{% endblock %}
+{% block page_title %}My products{% endblock %}
+
+{% block app_content %}
+<section class="panel">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">Purchases</span>
+            <h2>Product library</h2>
+        </div>
+        <a href="{% url 'product_list' %}">Browse products</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Product</th>
+                    <th>Status</th>
+                    <th class="text-end">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for purchase in purchases %}
+                    <tr>
+                        <td>{{ purchase.created_at|date:"M d, Y H:i" }}</td>
+                        <td>
+                            <strong><a href="{% url 'product_purchase_detail' purchase.pk %}">{{ purchase.product.title }}</a></strong>
+                            <div class="text-secondary small">{{ purchase.product.category.name }}</div>
+                        </td>
+                        <td>{{ purchase.get_status_display }}</td>
+                        <td class="text-end">KES {{ purchase.amount }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-secondary py-4">Your product library is empty.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

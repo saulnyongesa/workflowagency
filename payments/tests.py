@@ -137,11 +137,18 @@ class MpesaActivationTests(TestCase):
 
 class MpesaDepositTests(TestCase):
     def setUp(self):
+        self.referrer = User.objects.create_user(
+            username="depositreferrer",
+            email="depositreferrer@example.com",
+            phone_number="254700000004",
+            password="StrongPass123!",
+        )
         self.user = User.objects.create_user(
             username="deposituser",
             email="deposituser@example.com",
             phone_number="254700000003",
             password="StrongPass123!",
+            referred_by=self.referrer,
         )
 
     def test_successful_deposit_credits_available_wallet(self):

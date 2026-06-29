@@ -39,7 +39,15 @@
         <div class="copy-card">
             <span>Share this code with new users</span>
             <strong>{{ request.user.referral_code }}</strong>
-            <button class="btn btn-outline-primary btn-sm" type="button" data-copy-value="{{ request.user.referral_code }}">Copy code</button>
+            <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-outline-primary btn-sm" type="button" data-copy-value="{{ request.user.referral_code }}">Copy code</button>
+                <button class="btn btn-primary btn-sm" type="button" data-copy-value="{{ referral_link }}">Copy link</button>
+            </div>
+        </div>
+        <div class="copy-card mt-3">
+            <span>Your invite link</span>
+            <strong class="small">{{ referral_link }}</strong>
+            <a class="btn btn-outline-primary btn-sm" href="{{ referral_link }}" target="_blank" rel="noopener">Open link</a>
         </div>
     </div>
 

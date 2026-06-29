@@ -19,14 +19,15 @@ class JobAdmin(admin.ModelAdmin):
         "title",
         "category",
         "job_type",
+        "content_format",
         "reward_amount",
         "worker_limit",
         "claims_count",
         "status",
         "review_mode",
     )
-    list_filter = ("status", "job_type", "category", "review_mode", "proof_type")
-    search_fields = ("title", "description", "instructions")
+    list_filter = ("status", "job_type", "content_format", "category", "review_mode", "proof_type")
+    search_fields = ("title", "description", "instructions", "content_body")
     prepopulated_fields = {"slug": ("title",)}
     readonly_fields = ("claims_count", "approved_count", "pending_count", "rejected_count", "created_at", "updated_at")
     actions = ("publish_jobs", "pause_jobs", "clone_jobs")

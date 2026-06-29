@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
+from core.services import get_finance_settings
 from wallets.services import get_wallet
 from .models import Job, JobCategory, JobClaim, JobSubmission
 from .services import approve_submission, claim_job, reject_submission, submit_job_proof
@@ -16,11 +17,18 @@ User = get_user_model()
 
 class JobMarketplaceTests(TestCase):
     def setUp(self):
+        self.referrer = User.objects.create_user(
+            username="jobreferrer",
+            email="jobreferrer@example.com",
+            phone_number="254700111110",
+            password="StrongPass123!",
+        )
         self.user = User.objects.create_user(
             username="jobuser",
             email="jobuser@example.com",
             phone_number="254711111111",
             password="StrongPass123!",
+            referred_by=self.referrer,
             status=User.AccountStatus.ACTIVE,
             activation_status=User.ActivationStatus.ACTIVATED,
         )
@@ -67,6 +75,46 @@ class JobMarketplaceTests(TestCase):
 
         with self.assertRaises(ValidationError):
             claim_job(job=self.job, user=locked_user)
+
+    def test_disabled_job_claims_block_active_users(self):
+        settings_obj = get_finance_settings()
+        settings_obj.job_claims_enabled = False
+        settings_obj.save(update_fields=["job_claims_enabled", "updated_at"])
+
+        with self.assertRaisesMessage(
+            ValidationError,
+            "Jobs are not available at the moment but will be available once the client has approved them.",
+        ):
+            claim_job(job=self.job, user=self.user)
+
+    def test_disabled_job_claims_still_asks_locked_users_to_activate_first(self):
+        settings_obj = get_finance_settings()
+        settings_obj.job_claims_enabled = False
+        settings_obj.save(update_fields=["job_claims_enabled", "updated_at"])
+        locked_user = User.objects.create_user(
+            username="disabledlockedjob",
+            email="disabledlockedjob@example.com",
+            phone_number="254733333334",
+            password="StrongPass123!",
+            referred_by=self.referrer,
+        )
+
+        with self.assertRaisesMessage(ValidationError, "Activate your account before claiming jobs."):
+            claim_job(job=self.job, user=locked_user)
+
+    def test_disabled_job_claims_message_shows_on_claim_click(self):
+        settings_obj = get_finance_settings()
+        settings_obj.job_claims_enabled = False
+        settings_obj.save(update_fields=["job_claims_enabled", "updated_at"])
+        self.client.force_login(self.user)
+
+        response = self.client.post(reverse("claim_job", kwargs={"slug": self.job.slug}), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "Jobs are not available at the moment but will be available once the client has approved them.",
+        )
 
     def test_claim_job_increments_count_and_marks_full(self):
         self.job.worker_limit = 1

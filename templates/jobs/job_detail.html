@@ -7,18 +7,50 @@
 {% block app_content %}
 <section class="dashboard-grid">
     <div class="panel panel-large">
+        <div class="product-banner">
+            {% if job.banner_image %}
+                <img src="{{ job.banner_image.url }}" alt="{{ job.title }}">
+            {% else %}
+                <span class="product-banner-placeholder">
+                    <i data-lucide="briefcase-business"></i>
+                    <span>Job banner</span>
+                </span>
+            {% endif %}
+        </div>
         <div class="panel-heading">
             <div>
-                <span class="eyebrow">{{ job.get_job_type_display }}</span>
+                <span class="eyebrow">{{ job.get_job_type_display }} / {{ job.get_content_format_display }}</span>
                 <h2>Job instructions</h2>
             </div>
             <span class="badge text-bg-primary">KES {{ job.reward_amount }}</span>
         </div>
         <p class="text-secondary">{{ job.description }}</p>
+        {% if job.content_body %}
+            <div class="empty-state mt-3">
+                <strong>Task content</strong>
+                <span>{{ job.content_body|linebreaksbr }}</span>
+            </div>
+        {% endif %}
         <div class="readiness-list mt-3">
             <div>
                 <span>Instructions</span>
                 <strong>{{ job.instructions|linebreaksbr }}</strong>
+            </div>
+            {% if job.content_url %}
+                <div>
+                    <span>Task link</span>
+                    <strong><a href="{{ job.content_url }}" target="_blank" rel="noopener">Open task link</a></strong>
+                </div>
+            {% endif %}
+            {% if job.content_file %}
+                <div>
+                    <span>Task file</span>
+                    <strong><a href="{{ job.content_file.url }}" target="_blank" rel="noopener">Open resource file</a></strong>
+                </div>
+            {% endif %}
+            <div>
+                <span>Estimated time</span>
+                <strong>{{ job.estimated_minutes }} minutes</strong>
             </div>
             <div>
                 <span>Proof required</span>

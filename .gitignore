@@ -1,8 +1,12 @@
 .env
+.env.local
+.env.*.local
+.vercel/
 .venv/
 __pycache__/
 *.py[cod]
 *.sqlite3
+!prototype.sqlite3
 db.sqlite3
 /staticfiles/
 /media/

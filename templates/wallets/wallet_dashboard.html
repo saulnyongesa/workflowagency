@@ -34,7 +34,10 @@
             <span class="eyebrow">Payouts</span>
             <h2>Withdrawal requests</h2>
         </div>
-        <a class="btn btn-primary btn-sm" href="{% url 'withdrawal_request' %}">Request withdrawal</a>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-primary btn-sm" href="{% url 'withdrawal_request' %}">Request withdrawal</a>
+            <a class="btn btn-outline-primary btn-sm" href="{% url 'withdrawal_history' %}">Withdrawal history</a>
+        </div>
     </div>
     <div class="table-responsive">
         <table class="table align-middle">
@@ -50,7 +53,7 @@
                 {% for withdrawal in withdrawals %}
                     <tr>
                         <td><a href="{% url 'withdrawal_detail' withdrawal.pk %}">{{ withdrawal.created_at|date:"M d, Y H:i" }}</a></td>
-                        <td>{{ withdrawal.get_status_display }}</td>
+                        <td><span class="status-pill status-{{ withdrawal.status }}">{{ withdrawal.get_status_display }}</span></td>
                         <td>{{ withdrawal.phone_number }}</td>
                         <td class="text-end">KES {{ withdrawal.amount }}</td>
                     </tr>

@@ -1,10 +1,11 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
 <section class="auth-shell">
     <div class="auth-visual d-none d-lg-flex">
         <div>
-            <span class="eyebrow">Workflow Agency</span>
+            <img class="auth-logo" src="{% static 'img/workflow-logo-light.svg' %}" alt="Workflow Agency">
             <h1>Work marketplace accounts built for trust.</h1>
             <p>Users register once, activate securely, and unlock verified jobs only when business rules allow it.</p>
             <div class="auth-proof-grid">

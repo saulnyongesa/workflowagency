@@ -47,6 +47,7 @@ class FinanceSettingsAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "job_reward_release_delay_hours",
+                    "job_claims_enabled",
                     "auto_approve_small_jobs",
                     "auto_approve_job_reward_limit",
                     "max_claims_per_user_per_day",

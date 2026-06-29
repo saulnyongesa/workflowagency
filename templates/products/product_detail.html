@@ -1,0 +1,77 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}{{ product.title }} | Products{% endblock %}
+{% block eyebrow %}{{ product.category.name }}{% endblock %}
+{% block page_title %}{{ product.title }}{% endblock %}
+
+{% block app_content %}
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="product-banner">
+            {% if product.cover_image %}
+                <img src="{{ product.cover_image.url }}" alt="{{ product.title }}">
+            {% else %}
+                <span class="product-banner-placeholder">
+                    <i data-lucide="image"></i>
+                    <span>Product banner</span>
+                </span>
+            {% endif %}
+        </div>
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">{{ product.get_content_format_display }}</span>
+                <h2>Product details</h2>
+            </div>
+            <span class="badge text-bg-primary">KES {{ product.price }}</span>
+        </div>
+        <p class="text-secondary">{{ product.summary }}</p>
+        <div class="readiness-list mt-3">
+            <div>
+                <span>Description</span>
+                <strong>{{ product.description|linebreaksbr }}</strong>
+            </div>
+            <div>
+                <span>Availability</span>
+                <strong>{% if product.is_available %}Available{% else %}Unavailable{% endif %}</strong>
+            </div>
+            <div>
+                <span>Delivery</span>
+                <strong>{{ product.get_product_type_display }}</strong>
+            </div>
+            <div>
+                <span>Affiliate commission</span>
+                <strong>{{ product.get_commission_type_display }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Access</span>
+                <h2>Library</h2>
+            </div>
+        </div>
+        {% if purchase %}
+            <div class="empty-state">
+                <strong>Already purchased.</strong>
+                <span>This product is available in your library.</span>
+            </div>
+            <a class="btn btn-primary w-100 mt-3" href="{% url 'product_purchase_detail' purchase.pk %}">Open purchase</a>
+        {% elif product.is_available %}
+            <form method="post" action="{% url 'purchase_product' product.slug %}">
+                {% csrf_token %}
+                <button class="btn btn-primary w-100" type="submit">
+                    {% if product.price > 0 %}Buy with wallet{% else %}Add to library{% endif %}
+                </button>
+            </form>
+            <p class="text-secondary small mt-3 mb-0">Purchases use your available wallet balance and are recorded in the ledger.</p>
+        {% else %}
+            <div class="empty-state">
+                <strong>Not available.</strong>
+                <span>The product may be paused, archived, or sold out.</span>
+            </div>
+        {% endif %}
+    </aside>
+</section>
+{% endblock %}

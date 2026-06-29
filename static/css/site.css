@@ -54,6 +54,13 @@ a:hover {
     color: var(--wa-text);
 }
 
+.brand-logo {
+    display: inline-block;
+    flex: 0 0 auto;
+    height: 2.35rem;
+    width: 2.35rem;
+}
+
 .brand-symbol,
 .avatar {
     align-items: center;
@@ -79,6 +86,21 @@ a:hover {
     --bs-btn-border-color: var(--wa-primary);
     --bs-btn-hover-bg: var(--wa-primary);
     --bs-btn-hover-border-color: var(--wa-primary);
+}
+
+.btn-with-icon {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.45rem;
+    justify-content: center;
+}
+
+.btn-with-icon svg,
+.sidebar-nav svg,
+.sidebar-logout svg,
+.mobile-menu-button svg {
+    height: 1rem;
+    width: 1rem;
 }
 
 .eyebrow {
@@ -206,6 +228,14 @@ a:hover {
     max-width: 620px;
 }
 
+.auth-logo {
+    display: block;
+    height: auto;
+    margin-bottom: 1.5rem;
+    max-width: 280px;
+    width: 70%;
+}
+
 .auth-proof-grid {
     display: grid;
     gap: 1rem;
@@ -271,6 +301,7 @@ a:hover {
     top: 0;
     width: 270px;
     z-index: 20;
+    overflow: hidden;
 }
 
 .sidebar-brand {
@@ -303,8 +334,13 @@ a:hover {
 
 .sidebar-nav {
     display: grid;
+    flex: 1 1 auto;
     gap: 0.35rem;
     margin-top: 1.25rem;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 0.15rem;
+    scrollbar-width: thin;
 }
 
 .sidebar-nav a {
@@ -316,10 +352,27 @@ a:hover {
     padding: 0.75rem 0.85rem;
 }
 
+.sidebar-nav a span,
+.sidebar-logout button {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.6rem;
+}
+
 .sidebar-nav a.active,
 .sidebar-nav a:hover {
     background: rgba(255, 255, 255, 0.1);
     color: #fff;
+}
+
+.sidebar-section-label {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    margin: 0.85rem 0 0.15rem;
+    padding: 0 0.85rem;
+    text-transform: uppercase;
 }
 
 .sidebar-nav em {
@@ -329,7 +382,10 @@ a:hover {
 }
 
 .sidebar-logout {
-    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    flex: 0 0 auto;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
 }
 
 .sidebar-logout button {
@@ -359,6 +415,22 @@ a:hover {
     backdrop-filter: blur(14px);
 }
 
+.mobile-menu-button {
+    align-items: center;
+    background: #fff;
+    border: 1px solid var(--wa-border);
+    border-radius: 8px;
+    color: var(--wa-text);
+    display: none;
+    height: 2.5rem;
+    justify-content: center;
+    width: 2.5rem;
+}
+
+.topbar-title {
+    min-width: 0;
+}
+
 .app-topbar h1 {
     font-size: 1.65rem;
     font-weight: 800;
@@ -381,9 +453,49 @@ a:hover {
     padding: 0.45rem 0.75rem;
 }
 
+.status-requested,
+.status-processing,
+.status-approved {
+    background: #fef3c7;
+    border-color: #fde68a;
+    color: #92400e;
+}
+
+.status-paid {
+    background: #dcfce7;
+    border-color: #bbf7d0;
+    color: #166534;
+}
+
+.status-rejected,
+.status-failed,
+.status-cancelled {
+    background: #fee2e2;
+    border-color: #fecaca;
+    color: #991b1b;
+}
+
 .app-content,
 .app-alerts {
     padding: 1.5rem;
+}
+
+.message-modal-item {
+    border-left: 4px solid var(--wa-primary);
+    padding: 0.75rem 0.85rem;
+}
+
+.message-success {
+    border-left-color: var(--wa-green);
+}
+
+.message-error,
+.message-danger {
+    border-left-color: var(--wa-red);
+}
+
+.message-warning {
+    border-left-color: var(--wa-amber);
 }
 
 .hero-dashboard {
@@ -454,8 +566,63 @@ a:hover {
     grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.8fr);
 }
 
+.admin-action-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.admin-action-card {
+    border: 1px solid var(--wa-border);
+    border-radius: 8px;
+    color: var(--wa-text);
+    display: grid;
+    gap: 0.35rem;
+    padding: 1rem;
+}
+
+.admin-action-card:hover {
+    border-color: #b9d7ff;
+    color: var(--wa-text);
+}
+
+.admin-action-card svg {
+    color: var(--wa-primary);
+    height: 1.25rem;
+    width: 1.25rem;
+}
+
+.admin-action-card span {
+    color: var(--wa-muted);
+    font-size: 0.88rem;
+}
+
 .panel {
     padding: 1.25rem;
+}
+
+.filter-toggle {
+    align-items: center;
+    background: #fff;
+    border: 1px solid var(--wa-border);
+    border-radius: 8px;
+    color: var(--wa-text);
+    display: none;
+    font-weight: 800;
+    justify-content: space-between;
+    padding: 0.75rem 0.85rem;
+    width: 100%;
+}
+
+.filter-toggle span {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.5rem;
+}
+
+.filter-toggle svg {
+    height: 1rem;
+    width: 1rem;
 }
 
 .panel-large {
@@ -581,6 +748,177 @@ a:hover {
     margin-bottom: 0.2rem;
 }
 
+.store-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.store-card {
+    border: 1px solid var(--wa-border);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 210px;
+    padding: 1rem;
+}
+
+.product-banner {
+    align-items: center;
+    aspect-ratio: 16 / 7;
+    background: linear-gradient(135deg, #e0f2fe, #d1fae5);
+    border: 1px solid var(--wa-border);
+    border-radius: 8px;
+    color: var(--wa-muted);
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.product-banner img {
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+}
+
+.product-banner-placeholder {
+    display: grid;
+    gap: 0.25rem;
+    padding: 1rem;
+    place-items: center;
+    text-align: center;
+}
+
+.product-banner-placeholder svg {
+    color: var(--wa-primary);
+    height: 2rem;
+    width: 2rem;
+}
+
+.store-card h3 {
+    font-size: 1.02rem;
+    font-weight: 800;
+    margin: 0.35rem 0;
+}
+
+.store-card p {
+    color: var(--wa-muted);
+    margin-bottom: 0;
+}
+
+.store-card-footer {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.pagination-wrap {
+    align-items: center;
+    border-top: 1px solid var(--wa-border);
+    display: flex;
+    gap: 0.85rem;
+    justify-content: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+}
+
+.pagination-wrap span {
+    color: var(--wa-muted);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.conversation-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.conversation-item {
+    border: 1px solid var(--wa-border);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.conversation-staff {
+    background: var(--wa-soft);
+    border-color: #c7e4ff;
+}
+
+.conversation-item div {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.conversation-item span,
+.policy-body {
+    color: var(--wa-muted);
+}
+
+.conversation-item p {
+    margin-bottom: 0;
+}
+
+.password-meter-bar {
+    background: #e5e7eb;
+    border-radius: 999px;
+    height: 0.45rem;
+    overflow: hidden;
+}
+
+.password-meter-bar span {
+    background: var(--wa-red);
+    display: block;
+    height: 100%;
+    transition: width 180ms ease, background-color 180ms ease;
+    width: 0;
+}
+
+.password-meter-bar span[data-strength="3"],
+.password-meter-bar span[data-strength="4"] {
+    background: var(--wa-amber);
+}
+
+.password-meter-bar span[data-strength="5"] {
+    background: var(--wa-green);
+}
+
+.password-checklist {
+    color: var(--wa-muted);
+    display: grid;
+    font-size: 0.82rem;
+    gap: 0.15rem;
+    list-style: none;
+    margin: 0.5rem 0 0;
+    padding: 0;
+}
+
+.password-checklist li::before {
+    content: "○";
+    margin-right: 0.35rem;
+}
+
+.password-checklist li.is-valid {
+    color: var(--wa-green);
+}
+
+.password-checklist li.is-valid::before {
+    content: "✓";
+}
+
+.sidebar-backdrop {
+    background: rgba(17, 24, 39, 0.45);
+    display: none;
+    inset: 0;
+    position: fixed;
+    z-index: 18;
+}
+
 .mobile-tabbar {
     display: none;
 }
@@ -595,7 +933,9 @@ a:hover {
     }
 
     .app-sidebar {
-        display: none;
+        display: flex;
+        transform: translateX(-100%);
+        transition: transform 180ms ease;
     }
 
     .app-main {
@@ -604,15 +944,31 @@ a:hover {
     }
 
     .app-topbar {
+        gap: 0.85rem;
         padding: 1rem;
+    }
+
+    .mobile-menu-button {
+        display: inline-flex;
+        flex: 0 0 auto;
     }
 
     .topbar-actions .status-pill {
         display: none;
     }
 
+    body.sidebar-open .app-sidebar {
+        transform: translateX(0);
+    }
+
+    body.sidebar-open .sidebar-backdrop {
+        display: block;
+    }
+
     .stats-grid,
-    .dashboard-grid {
+    .admin-action-grid,
+    .dashboard-grid,
+    .store-grid {
         grid-template-columns: 1fr;
     }
 
@@ -666,8 +1022,36 @@ a:hover {
         padding: 1rem;
     }
 
+    .filter-panel {
+        padding: 0.85rem;
+    }
+
+    .filter-toggle {
+        display: flex;
+    }
+
+    .filter-body {
+        display: none;
+        margin-top: 0.85rem;
+    }
+
+    .filter-panel.is-open .filter-body {
+        display: flex;
+    }
+
     .table .d-flex {
         flex-direction: column;
+    }
+
+    .store-card-footer,
+    .pagination-wrap,
+    .conversation-item div {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .product-banner {
+        aspect-ratio: 4 / 3;
     }
 
     .auth-card {

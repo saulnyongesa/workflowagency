@@ -5,8 +5,12 @@
 {% block page_title %}Open jobs{% endblock %}
 
 {% block app_content %}
-<section class="panel mb-3">
-    <form class="row g-2 align-items-end" method="get">
+<section class="panel mb-3 filter-panel {% if selected_category or selected_type or search_query %}is-open{% endif %}">
+    <button class="filter-toggle" type="button" data-filter-toggle>
+        <span><i data-lucide="sliders-horizontal"></i>Filters</span>
+        <i data-lucide="chevron-down"></i>
+    </button>
+    <form class="row g-2 align-items-end filter-body" method="get">
         <div class="col-md-4">
             <label class="form-label" for="q">Search</label>
             <input class="form-control" id="q" name="q" value="{{ search_query }}" placeholder="Survey, testing, ads">
@@ -60,9 +64,24 @@
         {% empty %}
             <div class="empty-state">
                 <strong>No open jobs found.</strong>
-                <span>Check again after admin publishes more campaigns.</span>
+                <span>Check again when new campaigns are published.</span>
             </div>
         {% endfor %}
     </div>
+    {% if page_obj.has_other_pages %}
+        <nav class="pagination-wrap" aria-label="Jobs pagination">
+            {% if page_obj.has_previous %}
+                <a class="btn btn-outline-primary btn-sm" href="?{% if page_query %}{{ page_query }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+            {% else %}
+                <span class="btn btn-outline-secondary btn-sm disabled">Previous</span>
+            {% endif %}
+            <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }} · {{ page_obj.paginator.count }} jobs</span>
+            {% if page_obj.has_next %}
+                <a class="btn btn-outline-primary btn-sm" href="?{% if page_query %}{{ page_query }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+            {% else %}
+                <span class="btn btn-outline-secondary btn-sm disabled">Next</span>
+            {% endif %}
+        </nav>
+    {% endif %}
 </section>
 {% endblock %}

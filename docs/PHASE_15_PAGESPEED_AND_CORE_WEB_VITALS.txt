@@ -1,0 +1,104 @@
+PHASE 15 - PAGESPEED AND CORE WEB VITALS
+========================================
+
+Status: Implemented prototype optimization foundation
+Date: 2026-06-29
+
+
+1. GOAL
+-------
+
+Phase 15 prepares the site for strong mobile PageSpeed Insights results by keeping the frontend server-rendered, lightweight, paginated, and static-asset friendly.
+
+
+2. IMPLEMENTED PERFORMANCE WORK
+-------------------------------
+
+- Uses Django templates with Bootstrap and vanilla JavaScript instead of a heavy frontend framework.
+- JavaScript is deferred.
+- Public landing page no longer contains the bulky account overview card.
+- Sidebar and filters are handled with small vanilla JS helpers.
+- Jobs list is paginated at 25 rows per page.
+- Product list is paginated at 24 cards per page.
+- Static files use WhiteNoise compressed manifest storage.
+- SVG logo assets are lightweight and served from static files.
+- Product/job image placeholders avoid broken image layouts.
+- Mobile filters collapse by default to keep content visible.
+- Admin and user pages use server-side rendering and database query filtering.
+
+
+3. PAGES TO TEST
+----------------
+
+Run PageSpeed Insights or Lighthouse on:
+
+- Landing page
+- Register page
+- Login page
+- User dashboard
+- Jobs list
+- Product store
+- Referral dashboard
+- Wallet page
+- Admin dashboard
+
+
+4. PERFORMANCE BUDGET
+---------------------
+
+Prototype targets:
+
+- Mobile Performance: 90+ where practical
+- Desktop Performance: 95+ where practical
+- Accessibility: 90+
+- Best Practices: 90+
+- SEO for public pages: 90+
+- LCP: below 2.5s
+- INP: below 200ms
+- CLS: below 0.1
+
+
+5. VERCEL PROTOTYPE NOTES
+-------------------------
+
+Vercel can serve Django through its Python runtime and Vercel Functions. It detects `manage.py`, reads the Django WSGI/ASGI entrypoint, runs static collection, and serves static files through the Vercel CDN when `STATIC_ROOT` is configured.
+
+For this repository:
+
+- `pyproject.toml` points Vercel to `config.wsgi:application`.
+- `.env.vercel.prototype` lists the required environment variables.
+- The client prototype uses bundled `prototype.sqlite3`, copied to `/tmp` at runtime.
+- Treat the bundled database as demo data only; use PostgreSQL for persistent staging and Heroku production.
+- Use Cloudinary for uploads.
+
+
+6. HEROKU PRODUCTION NOTES
+--------------------------
+
+Heroku production should use:
+
+- Gunicorn web process from `Procfile`
+- Release phase migration from `Procfile`
+- Heroku Postgres
+- Cloudinary
+- WhiteNoise static serving
+- Config vars for secrets and M-Pesa credentials
+
+
+7. REMAINING PERFORMANCE WORK
+-----------------------------
+
+Before public launch:
+
+- Run Lighthouse/PageSpeed on deployed Vercel prototype URLs.
+- Capture before/after scores in this document.
+- Add responsive Cloudinary transformations for user-uploaded banners.
+- Add dashboard summary caching if admin reports become slow.
+- Add database indexes based on real query plans after real data exists.
+- Minify custom CSS/JS if PageSpeed flags transfer size.
+
+
+8. EXIT STATUS
+--------------
+
+Phase 15 is complete for prototype readiness. Final PageSpeed scores must be captured after the Vercel prototype URL is live.

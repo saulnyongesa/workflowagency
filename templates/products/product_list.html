@@ -1,0 +1,91 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Products | Workflow Agency{% endblock %}
+{% block eyebrow %}Store{% endblock %}
+{% block page_title %}Products{% endblock %}
+
+{% block app_content %}
+<section class="panel mb-3 filter-panel {% if selected_category or search_query %}is-open{% endif %}">
+    <button class="filter-toggle" type="button" data-filter-toggle>
+        <span><i data-lucide="sliders-horizontal"></i>Filters</span>
+        <i data-lucide="chevron-down"></i>
+    </button>
+    <form class="row g-2 align-items-end filter-body" method="get">
+        <div class="col-md-5">
+            <label class="form-label" for="q">Search</label>
+            <input class="form-control" id="q" name="q" value="{{ search_query }}" placeholder="Templates, guides, tools">
+        </div>
+        <div class="col-md-5">
+            <label class="form-label" for="category">Category</label>
+            <select class="form-select" id="category" name="category">
+                <option value="">All categories</option>
+                {% for category in categories %}
+                    <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button class="btn btn-primary" type="submit">Filter</button>
+        </div>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">Digital products</span>
+            <h2>Available products</h2>
+        </div>
+        <a href="{% url 'product_library' %}">My library</a>
+    </div>
+    <div class="store-grid">
+        {% for product in products %}
+            <article class="store-card">
+                <a class="product-banner" href="{% url 'product_detail' product.slug %}" aria-label="{{ product.title }}">
+                    {% if product.cover_image %}
+                        <img src="{{ product.cover_image.url }}" alt="{{ product.title }}">
+                    {% else %}
+                        <span class="product-banner-placeholder">
+                            <i data-lucide="image"></i>
+                            <span>Product banner</span>
+                        </span>
+                    {% endif %}
+                </a>
+                <div>
+                    <span class="job-category">{{ product.category.name }} / {{ product.get_content_format_display }}</span>
+                    <h3><a href="{% url 'product_detail' product.slug %}">{{ product.title }}</a></h3>
+                    <p>{{ product.summary }}</p>
+                </div>
+                <div class="store-card-footer">
+                    <strong>KES {{ product.price }}</strong>
+                    {% if product.is_in_stock %}
+                        <a class="btn btn-sm btn-outline-primary" href="{% url 'product_detail' product.slug %}">View</a>
+                    {% else %}
+                        <span class="badge text-bg-secondary">Sold out</span>
+                    {% endif %}
+                </div>
+            </article>
+        {% empty %}
+            <div class="empty-state">
+                <strong>No products published.</strong>
+                <span>Digital products, guides, and resources will appear here when available.</span>
+            </div>
+        {% endfor %}
+    </div>
+    {% if page_obj.has_other_pages %}
+        <nav class="pagination-wrap" aria-label="Products pagination">
+            {% if page_obj.has_previous %}
+                <a class="btn btn-outline-primary btn-sm" href="?{% if page_query %}{{ page_query }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+            {% else %}
+                <span class="btn btn-outline-secondary btn-sm disabled">Previous</span>
+            {% endif %}
+            <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }} · {{ page_obj.paginator.count }} products</span>
+            {% if page_obj.has_next %}
+                <a class="btn btn-outline-primary btn-sm" href="?{% if page_query %}{{ page_query }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+            {% else %}
+                <span class="btn btn-outline-secondary btn-sm disabled">Next</span>
+            {% endif %}
+        </nav>
+    {% endif %}
+</section>
+{% endblock %}

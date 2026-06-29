@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path("", views.wallet_dashboard, name="wallet_dashboard"),
     path("withdraw/", views.withdrawal_request_view, name="withdrawal_request"),
+    path("withdrawals/", views.withdrawal_history, name="withdrawal_history"),
     path("withdrawals/<int:pk>/", views.withdrawal_detail, name="withdrawal_detail"),
     path("admin-adjustment/", views.admin_wallet_adjustment, name="admin_wallet_adjustment"),
     path("admin-withdrawals/", views.withdrawal_queue, name="withdrawal_queue"),

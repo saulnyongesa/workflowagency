@@ -12,8 +12,20 @@
         <p>Confirmed deposits, ledger liabilities, pending proof, and payout queues are tracked from one workspace.</p>
     </div>
     <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-light" href="{% url 'admin_finance_settings' %}">Finance settings</a>
         <a class="btn btn-light" href="{% url 'withdrawal_queue' %}">Payout queue</a>
         <a class="btn btn-outline-light" href="{% url 'review_queue' %}">Job review</a>
+        <form method="post" action="{% url 'admin_toggle_job_claims' %}" data-no-loading="true">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            {% if finance_settings.job_claims_enabled %}
+                <input type="hidden" name="job_claims_enabled" value="0">
+                <button class="btn btn-warning" type="submit">Disable jobs</button>
+            {% else %}
+                <input type="hidden" name="job_claims_enabled" value="1">
+                <button class="btn btn-success" type="submit">Enable jobs</button>
+            {% endif %}
+        </form>
     </div>
 </section>
 
@@ -34,7 +46,7 @@
                 <span class="eyebrow">Reserve rules</span>
                 <h2>Finance settings</h2>
             </div>
-            <a href="{% url 'admin:core_financesettings_changelist' %}">Edit settings</a>
+            <a href="{% url 'admin_finance_settings' %}">Edit settings</a>
         </div>
         <div class="readiness-list">
             <div>
@@ -56,6 +68,10 @@
             <div>
                 <span>Minimum withdrawal</span>
                 <strong>KES {{ finance_settings.minimum_withdrawal_amount }}</strong>
+            </div>
+            <div>
+                <span>Job claiming</span>
+                <strong>{% if finance_settings.job_claims_enabled %}Enabled{% else %}Disabled{% endif %}</strong>
             </div>
         </div>
     </div>
@@ -82,7 +98,7 @@
             </div>
             <div>
                 <span>Ledger entries</span>
-                <strong>{{ ledger_count }}</strong>
+                <strong>{{ snapshot.ledger_count }}</strong>
             </div>
         </div>
     </aside>
@@ -91,40 +107,198 @@
 <section class="panel mt-3">
     <div class="panel-heading">
         <div>
-            <span class="eyebrow">Coming next</span>
-            <h2>Operational reports</h2>
+            <span class="eyebrow">Admin management</span>
+            <h2>Manage platform operations</h2>
+        </div>
+    </div>
+    <div class="admin-action-grid">
+        <a class="admin-action-card" href="{% url 'admin_jobs_manager' %}">
+            <i data-lucide="briefcase-business"></i>
+            <strong>Jobs</strong>
+            <span>Create jobs, edit rewards, publish or pause campaigns.</span>
+        </a>
+        <a class="admin-action-card" href="{% url 'admin_products_manager' %}">
+            <i data-lucide="shopping-bag"></i>
+            <strong>Products</strong>
+            <span>Create products, upload banners/files, and manage prices.</span>
+        </a>
+        <a class="admin-action-card" href="{% url 'admin_finance_settings' %}">
+            <i data-lucide="settings"></i>
+            <strong>Finance settings</strong>
+            <span>Control activation, referrals, withdrawals, reserves, and caps.</span>
+        </a>
+        <a class="admin-action-card" href="{% url 'withdrawal_queue' %}">
+            <i data-lucide="banknote"></i>
+            <strong>Payouts</strong>
+            <span>Review, approve, pay, or reject withdrawal requests.</span>
+        </a>
+        <a class="admin-action-card" href="{% url 'support_ticket_queue' %}">
+            <i data-lucide="messages-square"></i>
+            <strong>Support</strong>
+            <span>Handle user tickets and support replies.</span>
+        </a>
+        <a class="admin-action-card" href="{% url 'admin_content_manager' %}">
+            <i data-lucide="file-text"></i>
+            <strong>Content</strong>
+            <span>Publish announcements, FAQs, and policy pages.</span>
+        </a>
+        <a class="admin-action-card" href="{% url 'admin_users_manager' %}">
+            <i data-lucide="user-cog"></i>
+            <strong>Users</strong>
+            <span>Review accounts and record manual activations.</span>
+        </a>
+        <a class="admin-action-card" href="{% url 'admin_wallet_adjustment' %}">
+            <i data-lucide="sliders-horizontal"></i>
+            <strong>Wallet adjustments</strong>
+            <span>Post audited manual wallet adjustments.</span>
+        </a>
+    </div>
+</section>
+
+<section class="dashboard-grid mt-3">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Cash and revenue</span>
+                <h2>Confirmed inflows</h2>
+            </div>
+            <a href="{% url 'export_ledger_csv' %}">Export ledger CSV</a>
+        </div>
+        <div class="readiness-list">
+            <div>
+                <span>Activation cash</span>
+                <strong>KES {{ snapshot.activation_cash }}</strong>
+            </div>
+            <div>
+                <span>Deposit cash</span>
+                <strong>KES {{ snapshot.deposit_cash }}</strong>
+            </div>
+            <div>
+                <span>Product sales through wallet</span>
+                <strong>KES {{ snapshot.product_sales }}</strong>
+            </div>
+            <div>
+                <span>Completed purchases</span>
+                <strong>{{ snapshot.completed_purchases }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Pending pressure</span>
+                <h2>Unpaid work</h2>
+            </div>
+        </div>
+        <div class="readiness-list">
+            <div>
+                <span>Open withdrawals</span>
+                <strong>KES {{ snapshot.open_withdrawal_total }} / {{ snapshot.open_withdrawal_count }}</strong>
+            </div>
+            <div>
+                <span>Pending job rewards</span>
+                <strong>KES {{ snapshot.pending_job_rewards }} / {{ snapshot.pending_submission_count }}</strong>
+            </div>
+            <div>
+                <span>Pending referral bonuses</span>
+                <strong>KES {{ snapshot.pending_referral_bonuses }}</strong>
+            </div>
+            <div>
+                <span>Pending product commissions</span>
+                <strong>KES {{ snapshot.pending_product_commissions }}</strong>
+            </div>
+        </div>
+    </aside>
+</section>
+
+<section class="dashboard-grid mt-3">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Paid out</span>
+                <h2>Reward and payout totals</h2>
+            </div>
+        </div>
+        <div class="readiness-list">
+            <div>
+                <span>Job rewards paid</span>
+                <strong>KES {{ snapshot.job_rewards_paid }}</strong>
+            </div>
+            <div>
+                <span>Referral rewards paid</span>
+                <strong>KES {{ snapshot.referral_rewards_paid }}</strong>
+            </div>
+            <div>
+                <span>Product commissions paid</span>
+                <strong>KES {{ snapshot.product_commissions_paid }}</strong>
+            </div>
+            <div>
+                <span>Withdrawals paid</span>
+                <strong>KES {{ snapshot.withdrawals_paid }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Marketplace</span>
+                <h2>Activity</h2>
+            </div>
+        </div>
+        <div class="readiness-list">
+            <div>
+                <span>Published jobs</span>
+                <strong>{{ snapshot.open_jobs }}</strong>
+            </div>
+            <div>
+                <span>Reserve required</span>
+                <strong>KES {{ snapshot.reserve_required }}</strong>
+            </div>
+            <div>
+                <span>Reserve gap</span>
+                <strong>KES {{ snapshot.reserve_gap }}</strong>
+            </div>
+        </div>
+    </aside>
+</section>
+
+<section class="panel mt-3">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">Ledger</span>
+            <h2>Recent finance activity</h2>
         </div>
     </div>
     <div class="table-responsive">
         <table class="table align-middle">
             <thead>
                 <tr>
-                    <th>Report</th>
-                    <th>Purpose</th>
-                    <th>Status</th>
+                    <th>Date</th>
+                    <th>User</th>
+                    <th>Type</th>
+                    <th>Bucket</th>
+                    <th class="text-end">Amount</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Wallet liability</td>
-                    <td>Show all available, pending, and locked balances.</td>
-                    <td><span class="badge text-bg-success">Live</span></td>
-                </tr>
-                <tr>
-                    <td>M-Pesa reconciliation</td>
-                    <td>Match confirmed receipts with internal ledger entries.</td>
-                    <td><span class="badge text-bg-success">Live foundation</span></td>
-                </tr>
-                <tr>
-                    <td>Withdrawal safety</td>
-                    <td>Approve payouts only after after-payout solvency checks.</td>
-                    <td><span class="badge text-bg-success">Live</span></td>
-                </tr>
-                <tr>
-                    <td>Job proof review</td>
-                    <td>Approve user submissions and post rewards to wallets.</td>
-                    <td><span class="badge text-bg-success">Live</span></td>
-                </tr>
+                {% for transaction in recent_ledger %}
+                    <tr>
+                        <td>{{ transaction.created_at|date:"M d, Y H:i" }}</td>
+                        <td>{{ transaction.user.username }}</td>
+                        <td>
+                            <strong>{{ transaction.get_transaction_type_display }}</strong>
+                            <div class="text-secondary small">{{ transaction.description }}</div>
+                        </td>
+                        <td>{{ transaction.get_balance_bucket_display }}</td>
+                        <td class="text-end">{{ transaction.get_direction_display }} KES {{ transaction.amount }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-secondary py-4">No ledger activity yet.</td>
+                    </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>

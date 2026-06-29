@@ -49,6 +49,7 @@ class LedgerTransaction(models.Model):
         REFERRAL_BONUS_AVAILABLE = "referral_bonus_available", "Referral bonus available"
         JOB_REWARD_PENDING = "job_reward_pending", "Job reward pending"
         JOB_REWARD_APPROVED = "job_reward_approved", "Job reward approved"
+        PRODUCT_PURCHASE = "product_purchase", "Product purchase"
         PRODUCT_COMMISSION = "product_commission", "Product commission"
         WITHDRAWAL_REQUESTED = "withdrawal_requested", "Withdrawal requested"
         WITHDRAWAL_PAID = "withdrawal_paid", "Withdrawal paid"

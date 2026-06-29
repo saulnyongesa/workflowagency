@@ -1,0 +1,96 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Manage Users | Workflow Agency{% endblock %}
+{% block eyebrow %}Admin{% endblock %}
+{% block page_title %}Users{% endblock %}
+
+{% block app_content %}
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Accounts</span>
+                <h2>Recent users</h2>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Phone</th>
+                        <th>Referral</th>
+                        <th>Status</th>
+                        <th>Activation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>
+                                <strong>{{ user.username }}</strong>
+                                <div class="text-secondary small">{{ user.email }}</div>
+                            </td>
+                            <td>{{ user.phone_number|default:"-" }}</td>
+                            <td>
+                                {% if user.referred_by %}
+                                    {{ user.referred_by.username }}
+                                {% else %}
+                                    <span class="text-danger">Needs referral</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ user.get_status_display }}</td>
+                            <td>{{ user.get_activation_status_display }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-secondary py-4">No users found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Manual activation</span>
+                <h2>Record activation fee</h2>
+            </div>
+        </div>
+        <div class="alert alert-warning">
+            Only use this after receiving KES {{ finance_settings.activation_fee }} outside the automatic M-Pesa flow.
+            The action records confirmed cash, credits the user's wallet, activates the account, and posts referral rewards.
+        </div>
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="manual_activation">
+            {{ activation_form.non_field_errors }}
+            <div class="col-12">
+                <label class="form-label" for="{{ activation_form.user.id_for_label }}">{{ activation_form.user.label }}</label>
+                {{ activation_form.user }}
+                {% if activation_form.user.help_text %}
+                    <div class="form-text">{{ activation_form.user.help_text }}</div>
+                {% endif %}
+                {{ activation_form.user.errors }}
+            </div>
+            <div class="col-12">
+                <div class="form-check">
+                    {{ activation_form.confirm_cash_received }}
+                    <label class="form-check-label" for="{{ activation_form.confirm_cash_received.id_for_label }}">
+                        {{ activation_form.confirm_cash_received.label }}
+                    </label>
+                </div>
+                {% if activation_form.confirm_cash_received.help_text %}
+                    <div class="form-text">{{ activation_form.confirm_cash_received.help_text }}</div>
+                {% endif %}
+                {{ activation_form.confirm_cash_received.errors }}
+            </div>
+            <div class="col-12 d-grid">
+                <button class="btn btn-primary" type="submit">Activate account</button>
+            </div>
+        </form>
+    </aside>
+</section>
+{% endblock %}

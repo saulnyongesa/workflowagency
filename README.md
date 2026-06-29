@@ -1,12 +1,12 @@
 # Workflow Agency
 
-Workflow Agency is a planned Django web system for mobile-first online jobs, referrals, wallet balances, M-Pesa deposits and withdrawals, surveys, ad watching, product commissions, game/app testing, paid chat sessions, and other admin-managed earning tasks.
+Workflow Agency is a Django web system prototype for mobile-first online jobs, referrals, wallet balances, M-Pesa deposits and withdrawals, surveys, ad watching, product commissions, game/app testing, paid chat sessions, and other managed earning tasks.
 
-The project will use Django function-based views, HTML templates, Bootstrap, vanilla JavaScript, PostgreSQL, Cloudinary, and Safaricom Daraja M-Pesa APIs.
+The project uses Django function-based views, HTML templates, Bootstrap, vanilla JavaScript, PostgreSQL-ready database settings, Cloudinary-ready media storage, WhiteNoise static files, and Safaricom Daraja M-Pesa APIs.
 
 ## Current Status
 
-This repository now contains the active Django build foundation:
+This repository now contains the active Django prototype foundation:
 
 - Custom user accounts with username, email, or phone login
 - Mobile-first Bootstrap app shell and dashboard
@@ -16,10 +16,17 @@ This repository now contains the active Django build foundation:
 - M-Pesa STK/C2B deposit foundation
 - Job marketplace with categories, worker limits, proof submission, review, approval, rejection, and cloning
 - Withdrawal request flow with minimum limit, locked funds, admin approval, manual paid marking, rejection, and solvency checks
-- Admin reports for confirmed cash, wallet liability, pending job proof, and withdrawal exposure
-- Phase documentation in `docs/PHASE_0...txt` through `docs/PHASE_10...txt`
+- Product store with wallet purchases, library access, and product commission release foundation
+- Admin reports for confirmed cash, wallet liability, reserve gap, pending rewards, product sales, and withdrawal exposure
+- Support center with announcements, FAQs, policies, tickets, staff replies, and support queue
+- Referral links that prefill registration from shareable invite URLs
+- Global admin switch to disable or re-enable job claiming without deleting jobs
+- Lightweight SVG logo and favicon assets
+- Deployment security settings and Vercel prototype environment template
+- PageSpeed foundation work: paginated jobs/products, deferred JS, WhiteNoise static files, and lightweight assets
+- Phase documentation in `docs/PHASE_0...txt` through `docs/PHASE_15...txt`
 
-The older standalone M-Pesa reference files remain useful as historical context, but the implementation now lives inside separated Django apps for accounts, core settings, wallet, jobs, referrals, payments, products, and reporting.
+The older standalone M-Pesa sample files have been removed. The working implementation now lives inside separated Django apps for accounts, core settings, wallet, jobs, referrals, payments, products, support, and reporting.
 
 ## Important Hosting Note
 
@@ -30,6 +37,8 @@ References:
 - Heroku free plan removal: https://help.heroku.com/RSBRUH58/removal-of-heroku-free-product-plans-faq
 - Heroku pricing: https://www.heroku.com/pricing/
 - Heroku Postgres plans: https://devcenter.heroku.com/articles/heroku-postgres-plans
+- Vercel Django deployments: https://vercel.com/docs/frameworks/full-stack/django
+- Vercel Python runtime: https://vercel.com/docs/functions/runtimes/python
 - Cloudinary billing and free plan: https://cloudinary.com/documentation/billing_and_plans
 - Safaricom Daraja portal: https://developer.safaricom.co.ke/
 
@@ -104,7 +113,7 @@ Suggested app structure:
 
 ## Core User Flow
 
-1. User registers with username, phone number or email, password, and optional referral code.
+1. User registers with username, phone number or email, password, and a required referral code or referral link.
 2. Account is created as locked.
 3. User pays the activation fee through M-Pesa STK Push or PayBill/C2B.
 4. M-Pesa callback confirms the payment.
@@ -227,18 +236,73 @@ The admin dashboard should include:
 
 ## Deployment Plan
 
-Heroku deployment should include:
+Production target: Heroku.
 
-- `Procfile` with Gunicorn web process
-- `requirements.txt`
-- `runtime.txt` or `.python-version`
-- `DATABASE_URL` from Heroku Postgres
-- `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, M-Pesa credentials, and Cloudinary credentials in Heroku config vars
-- WhiteNoise for static files
-- Cloudinary for uploaded proof files and product images
-- Heroku worker dyno or scheduled management command for background processing
+Prototype/client-demo target: Vercel.
 
-Because Heroku is not fully free, the client should budget for at least a small dyno plus a Postgres plan before production launch.
+Included deployment files:
+
+- `Procfile`: Heroku release migrations and Gunicorn web process
+- `runtime.txt` and `.python-version`: Python version markers
+- `pyproject.toml`: Vercel Django entrypoint metadata
+- `.env.example`: local/Heroku config variable template
+- `.env.vercel.prototype`: Vercel prototype environment variable template
+- `docs/DEPLOYMENT_GUIDE.txt`: step-by-step prototype and production checklist
+
+Heroku production should use:
+
+- Heroku Postgres through `DATABASE_URL`
+- Cloudinary through `CLOUDINARY_URL`
+- Gunicorn from `Procfile`
+- WhiteNoise static files
+- Heroku config vars for `SECRET_KEY`, `DEBUG=False`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, M-Pesa credentials, and security flags
+- Heroku release phase migrations
+- Heroku Scheduler or a worker dyno for recurring commands such as commission/bonus release
+
+Vercel prototype should use:
+
+- The bundled `prototype.sqlite3` database for the client demo
+- `VERCEL_BUNDLED_SQLITE=True` with `DATABASE_URL` left blank
+- Cloudinary for uploads
+- Vercel environment variables copied from `.env.vercel.prototype`
+- `MPESA_CALLBACK_BASE_URL=https://your-vercel-project.vercel.app`
+- M-Pesa sandbox credentials unless live callback approval is ready
+
+The Vercel SQLite database is demo-only. It is copied to Vercel's temporary runtime storage and may reset after cold starts or redeploys. Because Heroku is not fully free, the client should budget for at least a small dyno plus a Postgres plan before production launch. Vercel is suitable here as a prototype/demo host, not the final production finance host.
+
+## Local Setup
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\pip.exe install -r requirements.txt
+Copy-Item .env.example .env
+.\.venv\Scripts\python.exe manage.py migrate
+.\.venv\Scripts\python.exe manage.py createsuperuser
+.\.venv\Scripts\python.exe manage.py runserver
+```
+
+Useful checks:
+
+```powershell
+.\.venv\Scripts\python.exe manage.py check
+.\.venv\Scripts\python.exe manage.py test
+.\.venv\Scripts\python.exe manage.py collectstatic --noinput
+```
+
+Optional local demo data:
+
+```powershell
+.\.venv\Scripts\python.exe manage.py prepare_prototype_database --reset-samples --jobs 5000 --surveys 5000 --products 5000
+.\.venv\Scripts\python.exe manage.py seed_sample_marketplace --jobs 5000 --surveys 5000 --products 5000
+.\.venv\Scripts\python.exe manage.py seed_sample_marketplace --reset --jobs 0 --surveys 0 --products 0
+```
+
+The current Vercel prototype intentionally ships with `prototype.sqlite3`, including demo users, 5,000 jobs, 5,000 surveys, and 5,000 products. Demo credentials:
+
+- `demo_admin` / `DemoAdmin123!`
+- `demo_worker` / `DemoUser123!`
+- `demo_referrer` / `DemoUser123!`
+- `demo_locked` / `DemoUser123!`
 
 ## Implementation Roadmap
 

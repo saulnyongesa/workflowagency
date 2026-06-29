@@ -58,12 +58,26 @@ class Job(models.Model):
         FILE = "file", "File upload"
         TEXT_URL = "text_url", "Text and URL"
 
+    class ContentFormat(models.TextChoices):
+        TASK = "task", "Task instructions"
+        SURVEY = "survey", "Survey"
+        ARTICLE = "article", "Article/story"
+        VIDEO = "video", "Video"
+        FILE = "file", "File/resource"
+        EXTERNAL = "external", "External link"
+
     category = models.ForeignKey(JobCategory, on_delete=models.PROTECT, related_name="jobs")
     title = models.CharField(max_length=160)
     slug = models.SlugField(max_length=180, unique=True)
     job_type = models.CharField(max_length=40, choices=JobType.choices, default=JobType.OTHER)
+    content_format = models.CharField(max_length=30, choices=ContentFormat.choices, default=ContentFormat.TASK)
     description = models.TextField()
     instructions = models.TextField()
+    content_body = models.TextField(blank=True)
+    banner_image = models.FileField(upload_to="jobs/banners/%Y/%m/", blank=True)
+    content_file = models.FileField(upload_to="jobs/content/%Y/%m/", blank=True)
+    content_url = models.URLField(blank=True)
+    estimated_minutes = models.PositiveIntegerField(default=5)
     reward_amount = models.DecimalField(
         max_digits=12,
         decimal_places=2,

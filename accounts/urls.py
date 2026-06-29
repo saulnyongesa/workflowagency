@@ -15,6 +15,7 @@ urlpatterns = [
         name="login",
     ),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path("complete-referral/", views.complete_referral, name="complete_referral"),
     path("profile/", views.profile, name="profile"),
     path("password/", views.password_change, name="password_change"),
 ]

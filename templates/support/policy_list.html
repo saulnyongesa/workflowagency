@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Policies | Workflow Agency{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="section-heading mb-4">
+            <span class="eyebrow">Policies</span>
+            <h1 class="fw-bold">Platform policies</h1>
+            <p class="text-secondary">Published rules for account use, jobs, referrals, withdrawals, privacy, and support.</p>
+        </div>
+        <div class="opportunity-list">
+            {% for policy in policies %}
+                <article class="job-row">
+                    <div>
+                        <span class="job-category">{{ policy.get_policy_type_display }}</span>
+                        <h3><a href="{% url 'policy_detail' policy.slug %}">{{ policy.title }}</a></h3>
+                        <p>{{ policy.summary|default:"Read the full policy." }}</p>
+                    </div>
+                    <div class="job-payout">
+                        <span>v{{ policy.version }}</span>
+                    </div>
+                </article>
+            {% empty %}
+                <div class="empty-state">
+                    <strong>No policies published.</strong>
+                    <span>Published platform policies will appear here.</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

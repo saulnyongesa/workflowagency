@@ -10,4 +10,6 @@ urlpatterns = [
     path('payments/', include('payments.urls')),
     path('referrals/', include('referrals.urls')),
     path('jobs/', include('jobs.urls')),
+    path('products/', include('products.urls')),
+    path('support/', include('support.urls')),
 ]

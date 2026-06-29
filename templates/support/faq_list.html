@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}FAQ | Workflow Agency{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="section-heading mb-4">
+            <span class="eyebrow">FAQ</span>
+            <h1 class="fw-bold">Frequently asked questions</h1>
+            <p class="text-secondary">Answers for common account, job, payment, product, and withdrawal questions.</p>
+        </div>
+        <div class="readiness-list panel">
+            {% for faq in faqs %}
+                <div>
+                    <span>{{ faq.category }}</span>
+                    <strong>{{ faq.question }}</strong>
+                    <p class="text-secondary mb-0">{{ faq.answer|linebreaksbr }}</p>
+                </div>
+            {% empty %}
+                <div>
+                    <span>FAQ</span>
+                    <strong>No FAQs published yet.</strong>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

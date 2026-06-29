@@ -17,11 +17,18 @@ User = get_user_model()
 
 class ReferralFlowTests(TestCase):
     def setUp(self):
+        self.sponsor = User.objects.create_user(
+            username="referralsponsor",
+            email="referralsponsor@example.com",
+            phone_number="254701111110",
+            password="StrongPass123!",
+        )
         self.referrer = User.objects.create_user(
             username="referralowner",
             email="referralowner@example.com",
             phone_number="254701111111",
             password="StrongPass123!",
+            referred_by=self.sponsor,
         )
         self.referred = User.objects.create_user(
             username="referredmember",
@@ -71,3 +78,19 @@ class ReferralFlowTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Your referral code")
+        self.assertContains(response, reverse("referral_join", kwargs={"code": self.referrer.referral_code}))
+
+    def test_logged_in_unreferred_user_can_apply_referral_link(self):
+        user = User.objects.create_user(
+            username="needsreferral",
+            email="needsreferral@example.com",
+            phone_number="254703333333",
+            password="StrongPass123!",
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("referral_join", kwargs={"code": self.referrer.referral_code}))
+
+        self.assertRedirects(response, reverse("dashboard"))
+        user.refresh_from_db()
+        self.assertEqual(user.referred_by, self.referrer)

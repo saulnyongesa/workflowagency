@@ -1,0 +1,75 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Purchase | Products{% endblock %}
+{% block eyebrow %}Purchase{% endblock %}
+{% block page_title %}{{ purchase.product.title }}{% endblock %}
+
+{% block app_content %}
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="product-banner">
+            {% if purchase.product.cover_image %}
+                <img src="{{ purchase.product.cover_image.url }}" alt="{{ purchase.product.title }}">
+            {% else %}
+                <span class="product-banner-placeholder">
+                    <i data-lucide="image"></i>
+                    <span>Product banner</span>
+                </span>
+            {% endif %}
+        </div>
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">{{ purchase.product.get_content_format_display }}</span>
+                <h2>Delivery</h2>
+            </div>
+            <span class="badge text-bg-secondary">{{ purchase.get_status_display }}</span>
+        </div>
+        <div class="readiness-list">
+            <div>
+                <span>Purchased</span>
+                <strong>{{ purchase.created_at|date:"M d, Y H:i" }}</strong>
+            </div>
+            <div>
+                <span>Amount</span>
+                <strong>KES {{ purchase.amount }}</strong>
+            </div>
+            <div>
+                <span>Access</span>
+                <strong>
+                    {% if purchase.product.product_type == "digital_file" and purchase.product.download_file %}
+                        <a href="{{ purchase.product.download_file.url }}" target="_blank" rel="noopener">Download file</a>
+                    {% elif purchase.product.product_type == "external_link" and purchase.product.external_url %}
+                        <a href="{{ purchase.product.external_url }}" target="_blank" rel="noopener">Open link</a>
+                    {% else %}
+                        Manual delivery
+                    {% endif %}
+                </strong>
+            </div>
+            {% if purchase.delivery_note %}
+                <div>
+                    <span>Delivery note</span>
+                    <strong>{{ purchase.delivery_note }}</strong>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Reference</span>
+                <h2>Receipt</h2>
+            </div>
+        </div>
+        <div class="readiness-list">
+            <div>
+                <span>Reference</span>
+                <strong>{{ purchase.public_reference }}</strong>
+            </div>
+            <div>
+                <span>Ledger</span>
+                <strong>{% if purchase.ledger_transaction %}Posted{% else %}No charge{% endif %}</strong>
+            </div>
+        </div>
+    </aside>
+</section>
+{% endblock %}

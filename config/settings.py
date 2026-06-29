@@ -1,7 +1,9 @@
 import os
+import shutil
 from pathlib import Path
 
 import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -65,6 +67,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'accounts.middleware.ReferralRequiredMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -92,9 +95,32 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+
+def bundled_sqlite_database_url():
+    source_name = os.getenv("VERCEL_SQLITE_SOURCE", "prototype.sqlite3")
+    source_path = BASE_DIR / source_name
+    runtime_path = Path(os.getenv("VERCEL_SQLITE_RUNTIME_PATH", "/tmp/workflowagency-prototype.sqlite3"))
+    reset_on_boot = env_bool("VERCEL_SQLITE_RESET_ON_BOOT", False)
+
+    if not source_path.exists():
+        raise ImproperlyConfigured(f"Bundled SQLite source was not found: {source_path}")
+
+    if source_path.exists() and (reset_on_boot or not runtime_path.exists()):
+        runtime_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source_path, runtime_path)
+
+    return f"sqlite:///{runtime_path}"
+
+
+DEFAULT_DATABASE_URL = (
+    bundled_sqlite_database_url()
+    if env_bool("VERCEL_BUNDLED_SQLITE", False)
+    else f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
+)
+
 DATABASES = {
     'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        default=DEFAULT_DATABASE_URL,
         conn_max_age=600,
         conn_health_checks=True,
     )
@@ -135,7 +161,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
@@ -170,6 +196,10 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", not DEBUG)
 SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", not DEBUG)
 CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", not DEBUG)
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = env_bool("CSRF_COOKIE_HTTPONLY", False)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = os.getenv("SECURE_REFERRER_POLICY", "same-origin")
 SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "0" if DEBUG else "31536000"))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", not DEBUG)
 SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", not DEBUG)

@@ -5,6 +5,29 @@
 {% block page_title %}Request withdrawal{% endblock %}
 
 {% block app_content %}
+<section class="stats-grid">
+    <article class="stat-card stat-success">
+        <span>Available balance</span>
+        <strong>KES {{ wallet.available_balance }}</strong>
+        <small>Amount currently available in your wallet.</small>
+    </article>
+    <article class="stat-card stat-warning">
+        <span>Minimum withdrawal</span>
+        <strong>KES {{ finance_settings.minimum_withdrawal_amount }}</strong>
+        <small>Current payout threshold.</small>
+    </article>
+    <article class="stat-card stat-info">
+        <span>Daily limit</span>
+        <strong>KES {{ finance_settings.maximum_daily_withdrawal_per_user }}</strong>
+        <small>Maximum request amount per user per day.</small>
+    </article>
+    <article class="stat-card {% if can_request_withdrawal %}stat-success{% else %}stat-danger{% endif %}">
+        <span>Request status</span>
+        <strong>{% if can_request_withdrawal %}Ready{% else %}Below minimum{% endif %}</strong>
+        <small>{% if can_request_withdrawal %}You can submit a request.{% else %}Earn or deposit more before requesting.{% endif %}</small>
+    </article>
+</section>
+
 <section class="panel narrow-panel">
     <div class="panel-heading">
         <div>
@@ -25,10 +48,55 @@
             {{ form.phone_number }}
             {{ form.phone_number.errors }}
         </div>
+        {% if not can_request_withdrawal %}
+            <div class="col-12">
+                <div class="empty-state">
+                    <strong>Withdrawal disabled for now.</strong>
+                    <span>Your available balance is below the minimum withdrawal amount.</span>
+                </div>
+            </div>
+        {% endif %}
         <div class="col-12 d-flex gap-2">
-            <button class="btn btn-primary" type="submit">Submit request</button>
+            <button class="btn btn-primary" type="submit" {% if not can_request_withdrawal %}disabled{% endif %}>Submit request</button>
             <a class="btn btn-outline-secondary" href="{% url 'wallet_dashboard' %}">Cancel</a>
+            <a class="btn btn-outline-primary" href="{% url 'withdrawal_history' %}">History</a>
         </div>
     </form>
+</section>
+
+<section class="panel mt-3">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">History</span>
+            <h2>Recent withdrawals</h2>
+        </div>
+        <a href="{% url 'withdrawal_history' %}">View all</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Phone</th>
+                    <th class="text-end">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for withdrawal in withdrawals %}
+                    <tr>
+                        <td><a href="{% url 'withdrawal_detail' withdrawal.pk %}">{{ withdrawal.created_at|date:"M d, Y H:i" }}</a></td>
+                        <td><span class="status-pill status-{{ withdrawal.status }}">{{ withdrawal.get_status_display }}</span></td>
+                        <td>{{ withdrawal.phone_number }}</td>
+                        <td class="text-end">KES {{ withdrawal.amount }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-secondary py-4">No withdrawal history yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </section>
 {% endblock %}

@@ -7,7 +7,8 @@ from django.urls import reverse
 from django.utils import timezone
 
 from accounts.models import User
-from core.services import get_finance_settings
+from core.models import AuditLog
+from core.services import create_audit_log, get_finance_settings
 from referrals.services import create_referral_bonus_for_activation
 from wallets.models import LedgerTransaction
 from wallets.services import post_ledger_transaction
@@ -48,6 +49,56 @@ def create_mpesa_transaction(*, user, amount, phone_number, transaction_kind, pa
         payment_method=payment_method,
         account_reference=account_reference,
     )
+
+
+def record_manual_activation(*, user, admin_user, request=None):
+    settings_obj = get_finance_settings()
+    activation_fee = money(settings_obj.activation_fee)
+    if activation_fee < Decimal("1.00"):
+        raise ValidationError("Activation fee must be at least KES 1.00 before manual activation can be recorded.")
+    if user.activation_status == User.ActivationStatus.ACTIVATED:
+        raise ValidationError("This account is already activated.")
+    if not user.referred_by_id:
+        raise ValidationError("The user must provide a referral code before activation.")
+
+    mpesa_transaction = MpesaTransaction.objects.create(
+        user=user,
+        amount=activation_fee,
+        phone_number=user.phone_number or "",
+        transaction_kind=MpesaTransaction.TransactionKind.ACTIVATION,
+        payment_method=MpesaTransaction.PaymentMethod.C2B,
+        account_reference=build_account_reference(MpesaTransaction.TransactionKind.ACTIVATION, user),
+        raw_request={
+            "source": "manual_admin_activation",
+            "admin_user_id": admin_user.pk if admin_user else None,
+        },
+    )
+    receipt_number = f"MANACT{mpesa_transaction.pk:08d}"
+    mpesa_transaction, created = process_successful_mpesa_transaction(
+        transaction=mpesa_transaction,
+        mpesa_receipt_number=receipt_number,
+        paid_amount=activation_fee,
+        phone_number=user.phone_number or "",
+        raw_callback={
+            "source": "manual_admin_activation",
+            "admin_user_id": admin_user.pk if admin_user else None,
+            "warning": "Manual activation assumes the fee has already been received as platform cash.",
+        },
+        result_description="Manual activation recorded by staff",
+    )
+    if created:
+        create_audit_log(
+            action=AuditLog.Action.SYSTEM,
+            actor=admin_user,
+            instance=mpesa_transaction,
+            changes={
+                "manual_activation": True,
+                "user_id": user.pk,
+                "activation_fee": str(activation_fee),
+            },
+            request=request,
+        )
+    return mpesa_transaction
 
 
 def initiate_transaction_stk_push(*, request, transaction):

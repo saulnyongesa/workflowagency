@@ -25,13 +25,12 @@ This is especially important because the activation fee is intended to appear in
 Current files:
 
 - sample_UI/: screenshots of the desired dashboard and pages
-- mpesa_config.py: previous M-Pesa credentials/config reference
-- mpesa_utils.py: previous STK Push and C2B helper reference
-- views.py: previous webinar/payment views reference
 - README.md: GitHub/client overview
 - docs/ARCHITECTURE_AND_DESIGN.txt: this document
+- payments/: active M-Pesa STK Push, C2B callback, transaction, and wallet-credit integration
+- docs/DEPLOYMENT_GUIDE.txt: Vercel prototype and Heroku production deployment guide
 
-The existing M-Pesa code should not be copied directly into production without refactoring. It currently contains hard-coded business values and domain URLs from another project context. The final build should move all credentials, short codes, callback URLs, passkeys, and environment choices into environment variables and database settings where appropriate.
+The old standalone M-Pesa sample files have been removed from the repository root. The active implementation now lives in the `payments` app and reads credentials, short codes, callback URLs, passkeys, and environment choices from environment variables.
 
 
 3. EXTERNAL PLATFORM FACTS VERIFIED
@@ -42,6 +41,14 @@ Heroku:
 - Heroku removed free dynos and free Heroku Postgres plans starting November 28, 2022.
 - Production Heroku hosting should be budgeted as a paid dyno plus paid Postgres plan.
 - Heroku Postgres Essential-0 is listed as a low-cost plan with 1 GB disk and 20 connections.
+
+Vercel:
+
+- Vercel supports Django deployments through the Python runtime.
+- Vercel detects `manage.py` and reads the WSGI/ASGI entrypoint from project settings.
+- Vercel can run `collectstatic` and serve static files through its CDN when `STATIC_ROOT` is configured.
+- Vercel should be used here for prototype review, while Heroku remains the production target.
+- The client prototype can bundle `prototype.sqlite3` as demo data, copied to runtime temp storage; it is not persistent production storage.
 
 Cloudinary:
 
@@ -1070,6 +1077,14 @@ Production components:
 - Safaricom Daraja APIs.
 - Optional Redis for Celery/RQ.
 - Optional Heroku Scheduler for recurring management commands.
+
+Vercel prototype components:
+
+- Vercel Python runtime serving Django through `config.wsgi:application`.
+- Bundled `prototype.sqlite3` copied to `/tmp` at runtime for demo data.
+- WhiteNoise/Vercel static delivery for collected static files.
+- Cloudinary for uploaded media if media upload is demonstrated.
+- M-Pesa sandbox credentials unless live callbacks are approved.
 
 Required Heroku config vars:
 

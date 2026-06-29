@@ -1,0 +1,104 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Manage Jobs | Workflow Agency{% endblock %}
+{% block eyebrow %}Admin{% endblock %}
+{% block page_title %}Manage jobs{% endblock %}
+
+{% block app_content %}
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Jobs</span>
+                <h2>Recent jobs</h2>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <form method="post" action="{% url 'admin_toggle_job_claims' %}" data-no-loading="true">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    {% if finance_settings.job_claims_enabled %}
+                        <input type="hidden" name="job_claims_enabled" value="0">
+                        <button class="btn btn-outline-danger btn-sm" type="submit">Disable jobs</button>
+                    {% else %}
+                        <input type="hidden" name="job_claims_enabled" value="1">
+                        <button class="btn btn-outline-success btn-sm" type="submit">Enable jobs</button>
+                    {% endif %}
+                </form>
+                <a class="btn btn-primary btn-sm" href="{% url 'admin_job_create' %}">New job</a>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Job</th>
+                        <th>Status</th>
+                        <th>Slots</th>
+                        <th class="text-end">Reward</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in jobs %}
+                        <tr>
+                            <td>
+                                <strong><a href="{% url 'admin_job_edit' job.pk %}">{{ job.title }}</a></strong>
+                                <div class="text-secondary small">{{ job.category.name }} / {{ job.get_job_type_display }} / {{ job.get_content_format_display }}</div>
+                            </td>
+                            <td>{{ job.get_status_display }}</td>
+                            <td>{{ job.claims_count }} / {{ job.worker_limit }}</td>
+                            <td class="text-end">KES {{ job.reward_amount }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-secondary py-4">No jobs yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Categories</span>
+                <h2>Add category</h2>
+            </div>
+        </div>
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="category">
+            {% for field in category_form %}
+                <div class="col-12">
+                    {% if field.field.widget.input_type == "checkbox" %}
+                        <div class="form-check">
+                            {{ field }}
+                            <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        </div>
+                    {% else %}
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                    {% endif %}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+            <div class="col-12 d-grid">
+                <button class="btn btn-primary" type="submit">Save category</button>
+            </div>
+        </form>
+        <div class="readiness-list mt-3">
+            {% for category in categories %}
+                <div>
+                    <span>{{ category.slug }}</span>
+                    <strong>{{ category.name }}</strong>
+                </div>
+            {% empty %}
+                <div>
+                    <span>Categories</span>
+                    <strong>No categories yet.</strong>
+                </div>
+            {% endfor %}
+        </div>
+    </aside>
+</section>
+{% endblock %}

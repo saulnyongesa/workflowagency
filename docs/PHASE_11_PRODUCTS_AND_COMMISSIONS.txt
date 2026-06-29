@@ -1,0 +1,115 @@
+PHASE 11 - PRODUCTS AND COMMISSIONS
+===================================
+
+Status: Implemented foundation
+Date: 2026-06-29
+
+
+1. GOAL
+-------
+
+Phase 11 adds a product store where active users can buy digital products, external-link products, or manually delivered services using wallet balance. It also creates a product commission foundation for referred purchases.
+
+
+2. IMPLEMENTED FILES
+--------------------
+
+- `products/models.py`
+  - `ProductCategory`
+  - `Product`
+  - `ProductPurchase`
+  - `ProductCommission`
+- `products/services.py`
+  - purchase validation
+  - wallet debit
+  - commission calculation
+  - due commission release
+- `products/views.py`
+  - product list
+  - product detail
+  - purchase action
+  - product library
+  - purchase detail
+- `products/admin.py`
+  - product/category admin
+  - purchase and commission admin
+- `products/management/commands/release_product_commissions.py`
+- `templates/products/`
+- `products/tests.py`
+
+
+3. USER FLOW
+------------
+
+1. Active user opens Products.
+2. User views a published product.
+3. User buys with available wallet balance.
+4. System debits the wallet through the ledger using `PRODUCT_PURCHASE`.
+5. Purchase appears in the user's product library.
+6. If the buyer has a referrer and the product has commission enabled, a pending product commission is created.
+7. Due commissions can be released by management command or admin action.
+
+
+4. FINANCE RULES
+----------------
+
+- Product purchases are wallet debits, not direct balance edits.
+- Duplicate completed purchases of the same product by the same user are blocked.
+- Product commissions credit the referrer's available wallet balance only after release.
+- Product commissions use `PRODUCT_COMMISSION` ledger entries and increase the referrer's lifetime earned total.
+- Free products can be added to the library without a debit ledger transaction.
+
+
+5. PRODUCT TYPES
+----------------
+
+Digital file:
+
+- Uses uploaded file delivery.
+- Production file storage should use Cloudinary because Heroku storage is ephemeral.
+
+External link:
+
+- Uses a delivery URL.
+- Useful for hosted files, courses, communities, or external resources.
+
+Service/manual delivery:
+
+- Admin delivers manually and can use purchase notes.
+
+
+6. ADMIN OPERATIONS
+-------------------
+
+Admin can:
+
+- Create categories.
+- Publish, pause, or archive products.
+- Upload covers/files.
+- Set price and stock quantity.
+- Set commission type, amount, percent, and release delay.
+- View purchases.
+- Release due commissions.
+
+
+7. TEST COVERAGE
+----------------
+
+Tests cover:
+
+- Product listing.
+- Wallet debit on purchase.
+- Duplicate purchase blocking.
+- Product commission creation.
+- Commission release into referrer wallet.
+- Purchase view flow.
+
+
+8. NEXT IMPROVEMENTS
+--------------------
+
+- Add product refund workflow.
+- Add delivery email/notification hooks.
+- Add product sales export.
+- Add product images and Cloudinary transformations in templates.
+- Add purchase terms checkbox for sensitive products.

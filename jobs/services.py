@@ -12,6 +12,12 @@ from .models import Job, JobClaim, JobSubmission
 def claim_job(*, job, user):
     job = Job.objects.select_for_update().get(pk=job.pk)
     settings_obj = get_finance_settings()
+    if user.status != user.AccountStatus.ACTIVE:
+        raise ValidationError("Activate your account before claiming jobs.")
+    if not settings_obj.job_claims_enabled:
+        raise ValidationError(
+            "Jobs are not available at the moment but will be available once the client has approved them."
+        )
     today_claims = JobClaim.objects.filter(user=user, claimed_at__date=timezone.localdate()).count()
     if today_claims >= settings_obj.max_claims_per_user_per_day:
         raise ValidationError("You have reached today's job claim limit.")
@@ -23,8 +29,6 @@ def claim_job(*, job, user):
         ).count()
         if ad_claims_today >= settings_obj.max_ad_watch_rewards_per_day:
             raise ValidationError("You have reached today's ad watch reward limit.")
-    if user.status != user.AccountStatus.ACTIVE:
-        raise ValidationError("Activate your account before claiming jobs.")
     if not job.is_open:
         raise ValidationError("This job is not open for new claims.")
     existing_claims = JobClaim.objects.filter(job=job, user=user).count()
@@ -172,8 +176,14 @@ def clone_job_as_new(*, job, created_by=None, worker_limit=None):
         title=f"{job.title} (New)",
         slug=f"{job.slug}-{timezone.now().strftime('%Y%m%d%H%M%S')}",
         job_type=job.job_type,
+        content_format=job.content_format,
         description=job.description,
         instructions=job.instructions,
+        content_body=job.content_body,
+        banner_image=job.banner_image,
+        content_file=job.content_file,
+        content_url=job.content_url,
+        estimated_minutes=job.estimated_minutes,
         reward_amount=job.reward_amount,
         worker_limit=worker_limit or job.worker_limit,
         status=Job.Status.DRAFT,

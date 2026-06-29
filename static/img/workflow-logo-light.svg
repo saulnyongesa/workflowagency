@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 96" role="img" aria-labelledby="title desc">
+  <title id="title">Workflow Agency logo</title>
+  <desc id="desc">Workflow Agency wordmark with a stylized verified workflow icon.</desc>
+  <defs>
+    <linearGradient id="bg" x1="12" x2="84" y1="10" y2="86" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4EA1FF"/>
+      <stop offset="0.58" stop-color="#22C55E"/>
+      <stop offset="1" stop-color="#0B5FFF"/>
+    </linearGradient>
+    <linearGradient id="node" x1="62" x2="86" y1="12" y2="36" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ECFDF5"/>
+      <stop offset="1" stop-color="#86EFAC"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="80" height="80" rx="20" fill="url(#bg)"/>
+  <path
+    d="M25 37 35 61l10.5-22.2L57 61l14-31"
+    fill="none"
+    stroke="#FFFFFF"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="7"
+  />
+  <path d="M26 68h44" fill="none" stroke="#D1FAE5" stroke-linecap="round" stroke-width="3.5" opacity="0.9"/>
+  <circle cx="73" cy="25" r="11" fill="url(#node)" stroke="#FFFFFF" stroke-width="3"/>
+  <path
+    d="m68.7 25 2.9 3 6.1-6.4"
+    fill="none"
+    stroke="#0E1735"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="3"
+  />
+  <text x="108" y="46" fill="#FFFFFF" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="30" font-weight="800">
+    Workflow
+  </text>
+  <text x="108" y="73" fill="#D1FAE5" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="24" font-weight="800">
+    Agency
+  </text>
+  <path d="M240 63h72" fill="none" stroke="#86EFAC" stroke-linecap="round" stroke-width="4"/>
+  <circle cx="326" cy="63" r="6" fill="#FFFFFF"/>
+</svg>

@@ -25,11 +25,18 @@ User = get_user_model()
 
 class WalletLedgerTests(TestCase):
     def setUp(self):
+        self.referrer = User.objects.create_user(
+            username="walletreferrer",
+            email="walletreferrer@example.com",
+            phone_number="254766666665",
+            password="StrongPass123!",
+        )
         self.user = User.objects.create_user(
             username="walletuser",
             email="walletuser@example.com",
             phone_number="254766666666",
             password="StrongPass123!",
+            referred_by=self.referrer,
         )
 
     def test_get_wallet_creates_wallet_once(self):
@@ -157,11 +164,18 @@ class WalletLedgerTests(TestCase):
 
 class WithdrawalWorkflowTests(TestCase):
     def setUp(self):
+        self.referrer = User.objects.create_user(
+            username="withdrawreferrer",
+            email="withdrawreferrer@example.com",
+            phone_number="254700000000",
+            password="StrongPass123!",
+        )
         self.user = User.objects.create_user(
             username="withdrawuser",
             email="withdrawuser@example.com",
             phone_number="254700000001",
             password="StrongPass123!",
+            referred_by=self.referrer,
             status=User.AccountStatus.ACTIVE,
             activation_status=User.ActivationStatus.ACTIVATED,
         )

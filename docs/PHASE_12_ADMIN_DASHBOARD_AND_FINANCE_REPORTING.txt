@@ -1,0 +1,104 @@
+PHASE 12 - ADMIN DASHBOARD AND FINANCE REPORTING
+================================================
+
+Status: Implemented foundation
+Date: 2026-06-29
+
+
+1. GOAL
+-------
+
+Phase 12 improves admin visibility into the platform's money movement. The dashboard now combines confirmed M-Pesa cash, wallet liability, reserve requirements, pending rewards, withdrawals, product sales, and recent ledger activity.
+
+
+2. IMPLEMENTED FILES
+--------------------
+
+- `reports/services.py`
+  - `admin_finance_snapshot`
+  - ledger and aggregate helpers
+- `reports/views.py`
+  - dashboard view using the snapshot
+  - ledger CSV export
+- `reports/urls.py`
+  - `ledger-export.csv`
+- `templates/reports/admin_dashboard.html`
+- `reports/tests.py`
+
+
+3. DASHBOARD METRICS
+--------------------
+
+The admin dashboard now shows:
+
+- Confirmed M-Pesa cash.
+- Wallet liability.
+- Required reserve.
+- Reserve gap.
+- Open withdrawal total and count.
+- Pending job reward exposure.
+- Pending referral bonus exposure.
+- Pending product commission exposure.
+- Activation cash.
+- Deposit cash.
+- Product sales through wallet.
+- Job rewards paid.
+- Referral rewards paid.
+- Product commissions paid.
+- Withdrawals paid.
+- Recent ledger activity.
+
+
+4. RESERVE GAP
+--------------
+
+Reserve required:
+
+`wallet liability * reserve ratio target + minimum platform cash buffer`
+
+Reserve gap:
+
+`confirmed cash - reserve required`
+
+If the reserve gap is negative, admin should avoid enabling or approving withdrawals until cash, liabilities, or pending obligations are reconciled.
+
+
+5. EXPORTS
+----------
+
+`/reports/ledger-export.csv` exports recent ledger rows for admin reconciliation.
+
+The export includes:
+
+- created date
+- user
+- transaction type
+- direction
+- bucket
+- amount
+- status
+- description
+- source app/model/id
+
+
+6. ADMIN GUIDANCE
+-----------------
+
+Before approving large withdrawals, admin should check:
+
+- Reserve gap.
+- Open withdrawal amount.
+- Pending job reward exposure.
+- Pending referral and product commission exposure.
+- Confirmed cash vs wallet liability.
+- Recent ledger activity.
+
+
+7. NEXT IMPROVEMENTS
+--------------------
+
+- Add date filters.
+- Add CSV exports for withdrawals, purchases, jobs, and M-Pesa transactions.
+- Add scheduled finance snapshots.
+- Add charts once the core data is stable.
+- Add reconciliation flags for ledger entries without matching M-Pesa receipts.

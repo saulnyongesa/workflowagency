@@ -1,0 +1,91 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Support Ticket | Workflow Agency{% endblock %}
+{% block eyebrow %}{{ ticket.get_category_display }}{% endblock %}
+{% block page_title %}{{ ticket.subject }}{% endblock %}
+
+{% block app_content %}
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">{{ ticket.get_status_display }}</span>
+                <h2>Conversation</h2>
+            </div>
+            <span class="badge text-bg-secondary">{{ ticket.get_priority_display }}</span>
+        </div>
+        <div class="conversation-list">
+            {% for reply in ticket.replies.all %}
+                <article class="conversation-item {% if reply.is_staff_reply %}conversation-staff{% endif %}">
+                    <div>
+                        <strong>{{ reply.sender.username }}</strong>
+                        <span>{{ reply.created_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <p>{{ reply.message|linebreaksbr }}</p>
+                </article>
+            {% empty %}
+                <div class="empty-state">
+                    <strong>No replies yet.</strong>
+                    <span>Add more details below.</span>
+                </div>
+            {% endfor %}
+        </div>
+        <form method="post" class="row g-3 mt-3">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="reply">
+            <div class="col-12">
+                <label class="form-label" for="{{ reply_form.message.id_for_label }}">Reply</label>
+                {{ reply_form.message }}
+                {{ reply_form.message.errors }}
+            </div>
+            <div class="col-12">
+                <button class="btn btn-primary" type="submit">Send reply</button>
+            </div>
+        </form>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Ticket</span>
+                <h2>Details</h2>
+            </div>
+        </div>
+        <div class="readiness-list">
+            <div>
+                <span>Created</span>
+                <strong>{{ ticket.created_at|date:"M d, Y H:i" }}</strong>
+            </div>
+            <div>
+                <span>Assigned to</span>
+                <strong>{{ ticket.assigned_to|default:"Unassigned" }}</strong>
+            </div>
+            <div>
+                <span>Contact</span>
+                <strong>{{ ticket.contact_email|default:ticket.contact_phone|default:"-" }}</strong>
+            </div>
+        </div>
+        {% if request.user.is_staff and staff_form %}
+            <form method="post" class="row g-3 mt-3">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="staff_update">
+                <div class="col-12">
+                    <label class="form-label" for="{{ staff_form.status.id_for_label }}">Status</label>
+                    {{ staff_form.status }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="{{ staff_form.assigned_to.id_for_label }}">Assigned to</label>
+                    {{ staff_form.assigned_to }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="{{ staff_form.admin_notes.id_for_label }}">Admin notes</label>
+                    {{ staff_form.admin_notes }}
+                </div>
+                <div class="col-12 d-grid">
+                    <button class="btn btn-outline-primary" type="submit">Update ticket</button>
+                </div>
+            </form>
+        {% endif %}
+    </aside>
+</section>
+{% endblock %}

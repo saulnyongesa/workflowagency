@@ -1,0 +1,91 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Manage Products | Workflow Agency{% endblock %}
+{% block eyebrow %}Admin{% endblock %}
+{% block page_title %}Manage products{% endblock %}
+
+{% block app_content %}
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Store</span>
+                <h2>Recent products</h2>
+            </div>
+            <a class="btn btn-primary btn-sm" href="{% url 'admin_product_create' %}">New product</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Status</th>
+                        <th>Sold</th>
+                        <th class="text-end">Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                        <tr>
+                            <td>
+                                <strong><a href="{% url 'admin_product_edit' product.pk %}">{{ product.title }}</a></strong>
+                                <div class="text-secondary small">{{ product.category.name }} / {{ product.get_content_format_display }} / {{ product.get_product_type_display }}</div>
+                            </td>
+                            <td>{{ product.get_status_display }}</td>
+                            <td>{{ product.sold_count }}</td>
+                            <td class="text-end">KES {{ product.price }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-secondary py-4">No products yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Categories</span>
+                <h2>Add category</h2>
+            </div>
+        </div>
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="category">
+            {% for field in category_form %}
+                <div class="col-12">
+                    {% if field.field.widget.input_type == "checkbox" %}
+                        <div class="form-check">
+                            {{ field }}
+                            <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        </div>
+                    {% else %}
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                    {% endif %}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+            <div class="col-12 d-grid">
+                <button class="btn btn-primary" type="submit">Save category</button>
+            </div>
+        </form>
+        <div class="readiness-list mt-3">
+            {% for category in categories %}
+                <div>
+                    <span>{{ category.slug }}</span>
+                    <strong>{{ category.name }}</strong>
+                </div>
+            {% empty %}
+                <div>
+                    <span>Categories</span>
+                    <strong>No categories yet.</strong>
+                </div>
+            {% endfor %}
+        </div>
+    </aside>
+</section>
+{% endblock %}

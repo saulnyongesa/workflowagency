@@ -1,0 +1,38 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Edit {{ label }} | Workflow Agency{% endblock %}
+{% block eyebrow %}Admin{% endblock %}
+{% block page_title %}Edit {{ label }}{% endblock %}
+
+{% block app_content %}
+<section class="panel">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">{{ label }}</span>
+            <h2>{{ content_item }}</h2>
+        </div>
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'admin_content_manager' %}">Back to content</a>
+    </div>
+    <form method="post" class="row g-3">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <div class="{% if field.name == 'body' or field.name == 'message' or field.name == 'answer' %}col-12{% else %}col-md-4{% endif %}">
+                {% if field.field.widget.input_type == "checkbox" %}
+                    <div class="form-check mt-4">
+                        {{ field }}
+                        <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    </div>
+                {% else %}
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                {% endif %}
+                {{ field.errors }}
+            </div>
+        {% endfor %}
+        <div class="col-12">
+            <button class="btn btn-primary" type="submit">Save {{ label }}</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

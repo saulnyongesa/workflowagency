@@ -1,0 +1,123 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Support | Workflow Agency{% endblock %}
+{% block eyebrow %}Help{% endblock %}
+{% block page_title %}Support center{% endblock %}
+
+{% block app_content %}
+<section class="hero-dashboard">
+    <div>
+        <span class="eyebrow">Support</span>
+        <h2>Get help with jobs, payments, withdrawals, products, and referrals.</h2>
+        <p>Check announcements and FAQs first, then open a ticket if your issue needs account review.</p>
+    </div>
+    <a class="btn btn-light" href="{% url 'support_ticket_create' %}">New ticket</a>
+</section>
+
+{% if announcements %}
+    <section class="panel mb-3">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Updates</span>
+                <h2>Announcements</h2>
+            </div>
+        </div>
+        <div class="opportunity-list">
+            {% for announcement in announcements %}
+                <article class="job-row">
+                    <div>
+                        <span class="job-category">{{ announcement.get_audience_display }}</span>
+                        <h3>{{ announcement.title }}</h3>
+                        <p>{{ announcement.message|truncatechars:180 }}</p>
+                    </div>
+                    <div class="job-payout">
+                        <span>{{ announcement.starts_at|date:"M d, Y" }}</span>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}
+
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Tickets</span>
+                <h2>Recent support tickets</h2>
+            </div>
+            <a href="{% url 'support_ticket_list' %}">View all</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Subject</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                        <tr>
+                            <td>{{ ticket.created_at|date:"M d, Y" }}</td>
+                            <td><a href="{% url 'support_ticket_detail' ticket.pk %}">{{ ticket.subject }}</a></td>
+                            <td>{{ ticket.get_status_display }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-secondary py-4">No support tickets yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Self service</span>
+                <h2>Policies</h2>
+            </div>
+        </div>
+        <div class="readiness-list">
+            {% for policy in policies %}
+                <div>
+                    <span>{{ policy.get_policy_type_display }}</span>
+                    <strong><a href="{% url 'policy_detail' policy.slug %}">{{ policy.title }}</a></strong>
+                </div>
+            {% empty %}
+                <div>
+                    <span>Policies</span>
+                    <strong>No published policies yet.</strong>
+                </div>
+            {% endfor %}
+        </div>
+    </aside>
+</section>
+
+<section class="panel mt-3">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">FAQ</span>
+            <h2>Common questions</h2>
+        </div>
+        <a href="{% url 'faq_list' %}">All FAQs</a>
+    </div>
+    <div class="readiness-list">
+        {% for faq in faqs %}
+            <div>
+                <span>{{ faq.category }}</span>
+                <strong>{{ faq.question }}</strong>
+                <p class="text-secondary mb-0">{{ faq.answer|truncatechars:180 }}</p>
+            </div>
+        {% empty %}
+            <div>
+                <span>FAQ</span>
+                <strong>No FAQs published yet.</strong>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
