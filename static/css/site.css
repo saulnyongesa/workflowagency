@@ -58,6 +58,7 @@ a:hover {
     display: inline-block;
     flex: 0 0 auto;
     height: 2.35rem;
+    vertical-align: middle;
     width: 2.35rem;
 }
 
@@ -228,12 +229,19 @@ a:hover {
     max-width: 620px;
 }
 
-.auth-logo {
-    display: block;
-    height: auto;
+.auth-logo-wrap {
+    align-items: center;
+    display: inline-flex;
+    font-size: 1.45rem;
+    font-weight: 800;
+    gap: 0.75rem;
     margin-bottom: 1.5rem;
-    max-width: 280px;
-    width: 70%;
+}
+
+.auth-logo-wrap .auth-logo {
+    flex: 0 0 auto;
+    height: 3rem;
+    width: 3rem;
 }
 
 .auth-proof-grid {
