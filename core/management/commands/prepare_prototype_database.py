@@ -31,6 +31,7 @@ class Command(BaseCommand):
         parser.add_argument("--batch-size", type=int, default=1000, help="Bulk insert batch size.")
         parser.add_argument("--seed", type=int, default=20260629, help="Deterministic data seed.")
         parser.add_argument("--reset-samples", action="store_true", help="Delete generated marketplace rows first.")
+        parser.add_argument("--skip-support-content", action="store_true", help="Do not seed prototype FAQs and policies.")
         parser.add_argument(
             "--prototype-file",
             default="prototype.sqlite3",
@@ -52,6 +53,8 @@ class Command(BaseCommand):
             seed=options["seed"],
             reset=options["reset_samples"],
         )
+        if not options["skip_support_content"]:
+            call_command("seed_support_content", updated_by=users["demo_admin"].username)
 
         if not options["skip_copy"]:
             copied_to = self._copy_database(options["prototype_file"])
