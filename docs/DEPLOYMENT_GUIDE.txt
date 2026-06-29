@@ -95,6 +95,13 @@ Demo credentials:
 
 The bundled database currently contains demo users, 5,000 jobs, 5,000 surveys, and 5,000 products.
 
+If Vercel logs show `ModuleNotFoundError: No module named 'django'`, the function was built without Python dependencies. Confirm:
+
+- `pyproject.toml` contains the `[project].dependencies` list.
+- Vercel Project Settings do not override the install command with an empty or Node-only command.
+- If an install command is required, set it to `python -m pip install -r requirements.txt`.
+- Redeploy with build cache cleared after changing dependency metadata.
+
 
 5. HEROKU PRODUCTION STEPS
 --------------------------
