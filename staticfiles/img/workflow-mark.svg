@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Workflow Agency mark</title>
+  <desc id="desc">A stylized workflow path forming a W with a verified check node.</desc>
+  <defs>
+    <linearGradient id="bg" x1="8" x2="56" y1="6" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0B5FFF"/>
+      <stop offset="0.58" stop-color="#0F766E"/>
+      <stop offset="1" stop-color="#111C44"/>
+    </linearGradient>
+    <linearGradient id="node" x1="40" x2="58" y1="8" y2="26" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#D1FAE5"/>
+      <stop offset="1" stop-color="#22C55E"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#0E1735" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#bg)"/>
+  <path
+    d="M14 23.5 22 42l8.2-17.2L39 42l10.6-23"
+    fill="none"
+    stroke="#FFFFFF"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="6"
+    filter="url(#shadow)"
+  />
+  <path
+    d="M15 47h34"
+    fill="none"
+    stroke="#D1FAE5"
+    stroke-linecap="round"
+    stroke-width="3"
+    opacity="0.88"
+  />
+  <circle cx="49" cy="17" r="9" fill="url(#node)" stroke="#FFFFFF" stroke-width="3"/>
+  <path
+    d="m45.4 17 2.3 2.4 5-5.2"
+    fill="none"
+    stroke="#0E1735"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="2.8"
+  />
+</svg>
