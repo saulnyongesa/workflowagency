@@ -1,4 +1,5 @@
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -151,3 +152,28 @@ class ReportsViewTests(TestCase):
         self.assertRedirects(response, reverse("admin_dashboard"))
         settings_obj.refresh_from_db()
         self.assertTrue(settings_obj.chat_sessions_enabled)
+
+    @patch("reports.views.start_bulk_content_seed")
+    def test_staff_can_start_bulk_content_seed(self, start_seed):
+        start_seed.return_value = True
+        staff = User.objects.create_user(
+            username="seedstaff",
+            email="seedstaff@example.com",
+            phone_number="254799999989",
+            password="StrongPass123!",
+            is_staff=True,
+        )
+        self.client.force_login(staff)
+
+        response = self.client.post(
+            reverse("admin_seed_demo_content"),
+            {"jobs": "12000", "surveys": "11000", "products": "10000"},
+        )
+
+        self.assertRedirects(response, reverse("admin_dashboard"))
+        start_seed.assert_called_once_with(
+            actor_id=staff.pk,
+            jobs=12000,
+            surveys=11000,
+            products=10000,
+        )

@@ -297,6 +297,17 @@ Optional local demo data:
 .\.venv\Scripts\python.exe manage.py seed_sample_marketplace --reset --jobs 0 --surveys 0 --products 0
 ```
 
+Bulk content seeding after deployment:
+
+- Admin dashboard button: Reports dashboard -> Auto add content
+- Heroku CLI option:
+
+```bash
+heroku run python manage.py seed_demo_content --jobs 10000 --surveys 10000 --products 10000
+```
+
+The seeding is idempotent: it tops generated jobs, surveys, and products up to the requested totals, then ensures policies, FAQs, and chat profiles exist.
+
 The current Vercel prototype intentionally ships with `prototype.sqlite3`, including demo users, 5,000 jobs, 5,000 surveys, and 5,000 products. Demo credentials:
 
 - `demo_admin` / `DemoAdmin123!`

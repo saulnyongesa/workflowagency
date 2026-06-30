@@ -129,6 +129,15 @@ If Vercel logs show `ModuleNotFoundError: No module named 'django'`, the functio
 9. Register M-Pesa callback URLs from the admin C2B page or CLI flow.
 10. Run smoke tests and PageSpeed tests.
 
+Optional: seed a large content pack after deployment:
+
+- Admin dashboard: open `/reports/dashboard/` and press `Auto add content`.
+- CLI:
+
+  `heroku run python manage.py seed_demo_content --jobs 10000 --surveys 10000 --products 10000`
+
+This tops up generated jobs, surveys, and products to the requested totals and also creates policies, FAQs, and chat profiles. It does not delete users, wallets, payments, withdrawals, or support tickets.
+
 
 6. CALLBACK URLS
 ----------------

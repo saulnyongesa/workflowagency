@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from core.models import AuditLog, FinanceSettings
+from core.seed_content import DEFAULT_BULK_SEED_TARGETS, get_seed_status, start_bulk_content_seed
 from core.services import create_audit_log
 from jobs.models import Job, JobCategory
 from payments.services import record_manual_activation
@@ -63,6 +64,7 @@ def admin_dashboard(request):
         },
     ]
     recent_ledger = LedgerTransaction.objects.select_related("user")[:15]
+    seed_status = get_seed_status()
     return render(
         request,
         "reports/admin_dashboard.html",
@@ -72,6 +74,8 @@ def admin_dashboard(request):
             "snapshot": snapshot,
             "liabilities": snapshot["liabilities"],
             "recent_ledger": recent_ledger,
+            "seed_status": seed_status,
+            "seed_targets": DEFAULT_BULK_SEED_TARGETS,
         },
     )
 
@@ -199,6 +203,32 @@ def admin_toggle_chat_sessions(request):
     else:
         messages.warning(request, "Chat sessions are disabled. Users will see the temporary availability message.")
     return redirect(request.POST.get("next") or "admin_dashboard")
+
+
+@staff_member_required
+@require_POST
+def admin_seed_demo_content(request):
+    def seed_count(name):
+        try:
+            value = int(request.POST.get(name) or DEFAULT_BULK_SEED_TARGETS[name])
+        except (TypeError, ValueError):
+            value = DEFAULT_BULK_SEED_TARGETS[name]
+        return max(0, min(value, 50000))
+
+    jobs = seed_count("jobs")
+    surveys = seed_count("surveys")
+    products = seed_count("products")
+    started = start_bulk_content_seed(
+        actor_id=request.user.pk,
+        jobs=jobs,
+        surveys=surveys,
+        products=products,
+    )
+    if started:
+        messages.success(request, "Content generation has started. Refresh this page to see progress.")
+    else:
+        messages.warning(request, "Content generation is already running.")
+    return redirect("admin_dashboard")
 
 
 @staff_member_required

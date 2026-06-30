@@ -50,6 +50,50 @@
     {% endfor %}
 </section>
 
+<section class="panel mt-3">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">Auto content</span>
+            <h2>Bulk add jobs, products, FAQs, and policies</h2>
+        </div>
+        <form method="post" action="{% url 'admin_seed_demo_content' %}" data-no-loading="true">
+            {% csrf_token %}
+            <input type="hidden" name="jobs" value="{{ seed_targets.jobs }}">
+            <input type="hidden" name="surveys" value="{{ seed_targets.surveys }}">
+            <input type="hidden" name="products" value="{{ seed_targets.products }}">
+            <button class="btn btn-primary btn-sm" type="submit" {% if seed_status.status == "running" %}disabled{% endif %}>
+                <i data-lucide="sparkles"></i>Auto add content
+            </button>
+        </form>
+    </div>
+    <div class="readiness-list">
+        <div>
+            <span>Status</span>
+            <strong>{{ seed_status.status|title }}</strong>
+            <small class="text-secondary">{{ seed_status.message }}</small>
+        </div>
+        <div>
+            <span>Jobs target</span>
+            <strong>{{ seed_targets.jobs }} jobs + {{ seed_targets.surveys }} surveys</strong>
+        </div>
+        <div>
+            <span>Products target</span>
+            <strong>{{ seed_targets.products }} products</strong>
+        </div>
+        <div>
+            <span>Current generated rows</span>
+            <strong>{{ seed_status.counts.jobs }} jobs / {{ seed_status.counts.surveys }} surveys / {{ seed_status.counts.products }} products</strong>
+            <small class="text-secondary">{{ seed_status.counts.policies }} policies, {{ seed_status.counts.faqs }} FAQs, {{ seed_status.counts.chat_profiles }} chat profiles</small>
+        </div>
+        {% if seed_status.error %}
+            <div>
+                <span>Error</span>
+                <strong>{{ seed_status.error }}</strong>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
 <section class="dashboard-grid">
     <div class="panel panel-large">
         <div class="panel-heading">

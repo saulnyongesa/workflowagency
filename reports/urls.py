@@ -7,6 +7,7 @@ urlpatterns = [
     path("finance-settings/", views.admin_finance_settings, name="admin_finance_settings"),
     path("toggle-job-claims/", views.admin_toggle_job_claims, name="admin_toggle_job_claims"),
     path("toggle-chat-sessions/", views.admin_toggle_chat_sessions, name="admin_toggle_chat_sessions"),
+    path("seed-demo-content/", views.admin_seed_demo_content, name="admin_seed_demo_content"),
     path("jobs/", views.admin_jobs_manager, name="admin_jobs_manager"),
     path("jobs/new/", views.admin_job_form, name="admin_job_create"),
     path("jobs/<int:job_id>/edit/", views.admin_job_form, name="admin_job_edit"),
