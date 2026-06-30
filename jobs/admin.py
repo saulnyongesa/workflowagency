@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.text import slugify
 
-from .models import Job, JobCategory, JobClaim, JobSubmission
+from .models import ChatMessage, ChatProfile, ChatThread, Job, JobCategory, JobClaim, JobSubmission
 from .services import clone_job_as_new
 
 
@@ -84,6 +84,46 @@ class JobSubmissionAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(ChatProfile)
+class ChatProfileAdmin(admin.ModelAdmin):
+    list_display = ("display_name", "country", "rate_per_message", "is_active", "sort_order")
+    list_filter = ("is_active", "country")
+    search_fields = ("display_name", "country", "headline", "bio")
+
+
+class ChatMessageInline(admin.TabularInline):
+    model = ChatMessage
+    extra = 0
+    readonly_fields = ("sender", "body", "created_at")
+    can_delete = False
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(ChatThread)
+class ChatThreadAdmin(admin.ModelAdmin):
+    list_display = ("last_message_at", "user", "profile", "status")
+    list_filter = ("status", "profile", "last_message_at")
+    search_fields = ("user__username", "user__email", "profile__display_name")
+    readonly_fields = ("user", "profile", "status", "last_message_at", "created_at", "updated_at")
+    inlines = (ChatMessageInline,)
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(ChatMessage)
+class ChatMessageAdmin(admin.ModelAdmin):
+    list_display = ("created_at", "thread", "sender")
+    list_filter = ("sender", "created_at")
+    search_fields = ("body", "thread__user__username", "thread__profile__display_name")
+    readonly_fields = ("thread", "sender", "body", "created_at")
 
     def has_add_permission(self, request):
         return False

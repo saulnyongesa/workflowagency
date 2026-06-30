@@ -25,6 +25,8 @@ JOB_CATEGORIES = [
     ("translation", "Translation", "#ef4444"),
     ("product-review", "Product Review", "#8b5cf6"),
     ("paid-chat", "Paid Chat", "#06b6d4"),
+    ("swahili-teaching", "Teach Swahili", "#10b981"),
+    ("ai-training", "AI Training", "#7c3aed"),
     ("affiliate-tasks", "Affiliate Tasks", "#f97316"),
 ]
 
@@ -100,6 +102,18 @@ JOB_TITLE_PATTERNS = {
         "Join a Customer Research Conversation",
         "Complete a Guided Chat Interview",
     ],
+    Job.JobType.SWAHILI_TEACHING: [
+        "Teach Beginner Swahili Greetings",
+        "Practice Swahili Travel Phrases",
+        "Record Simple Swahili Pronunciation Notes",
+        "Guide a Short Swahili Conversation",
+    ],
+    Job.JobType.AI_TRAINING: [
+        "Compare Two AI Assistant Answers",
+        "Label Helpful and Unhelpful AI Replies",
+        "Rewrite a Prompt for Better AI Output",
+        "Rate AI Responses for Safety and Clarity",
+    ],
     Job.JobType.PRODUCT_AFFILIATE: [
         "Share a Course Offer With a Tracked Link",
         "Promote a Template Pack to Your Network",
@@ -117,6 +131,8 @@ JOB_DESCRIPTIONS = {
     Job.JobType.TRANSLATION: "Translate the assigned short text naturally while keeping the meaning, tone, and call to action intact.",
     Job.JobType.PRODUCT_REVIEW: "Review the product preview, check the stated value, and submit useful buyer-focused feedback.",
     Job.JobType.CHAT_SESSION: "Attend the timed chat session, follow the conversation brief, and submit the session confirmation.",
+    Job.JobType.SWAHILI_TEACHING: "Help an international learner practice simple Swahili phrases and submit a short session summary.",
+    Job.JobType.AI_TRAINING: "Review AI-generated content, label quality issues, and submit the required evaluation notes.",
     Job.JobType.PRODUCT_AFFILIATE: "Share the approved offer using the provided link and submit proof of the completed promotion.",
 }
 
@@ -129,6 +145,8 @@ JOB_INSTRUCTIONS = {
     Job.JobType.TRANSLATION: "Keep the translation simple and natural, preserve product names, and submit both source and final text.",
     Job.JobType.PRODUCT_REVIEW: "Open the product preview, check the headline and value promise, then submit practical improvement notes.",
     Job.JobType.CHAT_SESSION: "Join at the scheduled time, stay for the full session, and submit the session reference after completion.",
+    Job.JobType.SWAHILI_TEACHING: "Follow the lesson prompt, keep the language simple, and submit the learner topic plus your teaching notes.",
+    Job.JobType.AI_TRAINING: "Read both AI outputs carefully, apply the rating guide, and submit concise reasons for your choices.",
     Job.JobType.PRODUCT_AFFILIATE: "Use only the approved message, share through one allowed channel, and submit a proof link or screenshot note.",
 }
 
@@ -330,6 +348,8 @@ class Command(BaseCommand):
             Job.JobType.TRANSLATION,
             Job.JobType.PRODUCT_REVIEW,
             Job.JobType.CHAT_SESSION,
+            Job.JobType.SWAHILI_TEACHING,
+            Job.JobType.AI_TRAINING,
             Job.JobType.PRODUCT_AFFILIATE,
         ]
         content_formats = [

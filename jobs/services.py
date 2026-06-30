@@ -5,7 +5,14 @@ from django.utils import timezone
 from core.services import get_finance_settings
 from wallets.models import LedgerTransaction
 from wallets.services import post_ledger_transaction
-from .models import Job, JobClaim, JobSubmission
+from .models import ChatMessage, ChatProfile, ChatThread, Job, JobClaim, JobSubmission
+
+
+OFFLINE_REPLY_TEMPLATE = (
+    "{name} is offline right now and will be back online soon. "
+    "We will notify you when this chat partner is available. "
+    "Your message has been saved."
+)
 
 
 @transaction.atomic
@@ -197,3 +204,38 @@ def clone_job_as_new(*, job, created_by=None, worker_limit=None):
         cloned_from=job,
     )
     return clone
+
+
+@transaction.atomic
+def send_chat_message(*, profile, user, body):
+    settings_obj = get_finance_settings()
+    if user.status != user.AccountStatus.ACTIVE:
+        raise ValidationError("Activate your account before opening paid chat sessions.")
+    if not settings_obj.chat_sessions_enabled:
+        raise ValidationError("Chat sessions are temporarily unavailable. Please check again later.")
+    profile = ChatProfile.objects.select_for_update().get(pk=profile.pk)
+    if not profile.is_active:
+        raise ValidationError("This chat partner is not available right now.")
+
+    thread = (
+        ChatThread.objects.select_for_update()
+        .filter(user=user, profile=profile, status__in=[ChatThread.Status.OPEN, ChatThread.Status.OFFLINE])
+        .first()
+    )
+    if not thread:
+        thread = ChatThread.objects.create(
+            user=user,
+            profile=profile,
+            status=ChatThread.Status.OFFLINE,
+            last_message_at=timezone.now(),
+        )
+    ChatMessage.objects.create(thread=thread, sender=ChatMessage.Sender.USER, body=body.strip())
+    reply = ChatMessage.objects.create(
+        thread=thread,
+        sender=ChatMessage.Sender.SYSTEM,
+        body=OFFLINE_REPLY_TEMPLATE.format(name=profile.display_name),
+    )
+    thread.status = ChatThread.Status.OFFLINE
+    thread.last_message_at = reply.created_at
+    thread.save(update_fields=["status", "last_message_at", "updated_at"])
+    return thread

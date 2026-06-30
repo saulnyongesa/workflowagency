@@ -42,6 +42,7 @@ class ReportsViewTests(TestCase):
         self.assertContains(response, "Finance settings")
         self.assertContains(response, "Wallet buckets")
         self.assertContains(response, "Disable jobs")
+        self.assertContains(response, "Disable chat")
 
     def test_ledger_export_requires_staff_and_returns_csv(self):
         staff = User.objects.create_user(
@@ -128,3 +129,25 @@ class ReportsViewTests(TestCase):
         self.assertRedirects(response, reverse("admin_dashboard"))
         settings_obj.refresh_from_db()
         self.assertTrue(settings_obj.job_claims_enabled)
+
+    def test_staff_can_toggle_chat_sessions(self):
+        staff = User.objects.create_user(
+            username="chattogglestaff",
+            email="chattogglestaff@example.com",
+            phone_number="254799999998",
+            password="StrongPass123!",
+            is_staff=True,
+        )
+        self.client.force_login(staff)
+
+        response = self.client.post(reverse("admin_toggle_chat_sessions"), {"chat_sessions_enabled": "0"})
+
+        self.assertRedirects(response, reverse("admin_dashboard"))
+        settings_obj = get_finance_settings()
+        self.assertFalse(settings_obj.chat_sessions_enabled)
+
+        response = self.client.post(reverse("admin_toggle_chat_sessions"), {"chat_sessions_enabled": "1"})
+
+        self.assertRedirects(response, reverse("admin_dashboard"))
+        settings_obj.refresh_from_db()
+        self.assertTrue(settings_obj.chat_sessions_enabled)

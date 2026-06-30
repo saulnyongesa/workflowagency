@@ -52,6 +52,7 @@ class FinanceSettings(TimeStampedModel):
     minimum_platform_cash_buffer = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
     job_reward_release_delay_hours = models.PositiveIntegerField(default=0)
     job_claims_enabled = models.BooleanField(default=True)
+    chat_sessions_enabled = models.BooleanField(default=True)
     auto_approve_small_jobs = models.BooleanField(default=False)
     auto_approve_job_reward_limit = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
     max_claims_per_user_per_day = models.PositiveIntegerField(default=10)

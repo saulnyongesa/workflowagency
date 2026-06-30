@@ -1,0 +1,79 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Chat with {{ profile.display_name }} | Workflow Agency{% endblock %}
+{% block eyebrow %}Chat work{% endblock %}
+{% block page_title %}{{ profile.display_name }}{% endblock %}
+
+{% block app_content %}
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div class="d-flex align-items-center gap-3">
+                <div class="chat-avatar">{{ profile.avatar_initials }}</div>
+                <div>
+                    <span class="eyebrow">{{ profile.country }}</span>
+                    <h2>{{ profile.headline }}</h2>
+                </div>
+            </div>
+            <span class="badge text-bg-primary">KES {{ profile.rate_per_message }} per approved chat</span>
+        </div>
+        <p class="text-secondary">{{ profile.bio }}</p>
+        <div class="empty-state mt-3">
+            <strong>Conversation prompt</strong>
+            <span>{{ profile.topic_prompt }}</span>
+        </div>
+
+        <div class="chat-window mt-3">
+            {% for message in chat_messages %}
+                <div class="chat-bubble chat-bubble-{{ message.sender }}">
+                    <span>{{ message.get_sender_display }}</span>
+                    <p>{{ message.body|linebreaksbr }}</p>
+                    <small>{{ message.created_at|date:"M d, H:i" }}</small>
+                </div>
+            {% empty %}
+                <div class="empty-state">
+                    <strong>No messages yet.</strong>
+                    <span>Send a friendly greeting to test the chat flow.</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Send message</span>
+                <h2>Chat session</h2>
+            </div>
+        </div>
+        {% if not finance_settings.chat_sessions_enabled %}
+            <div class="empty-state">
+                <strong>Chat sessions are paused.</strong>
+                <span>Admin has disabled chat sessions for now.</span>
+            </div>
+        {% elif request.user.status != "active" %}
+            <div class="empty-state">
+                <strong>Activation required.</strong>
+                <span>Activate your account before opening paid chat sessions.</span>
+            </div>
+        {% else %}
+            <form method="post" class="row g-3">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="col-12">
+                    <label class="form-label" for="{{ form.body.id_for_label }}">{{ form.body.label }}</label>
+                    {{ form.body }}
+                    {{ form.body.errors }}
+                </div>
+                <div class="col-12 d-grid">
+                    <button class="btn btn-primary" type="submit">
+                        <i data-lucide="send"></i>Send message
+                    </button>
+                </div>
+            </form>
+            <p class="text-secondary small mt-3 mb-0">If the partner is offline, your message will be saved and you will be notified when they return.</p>
+        {% endif %}
+        <a class="btn btn-outline-primary w-100 mt-3" href="{% url 'chat_lobby' %}">Back to chat</a>
+    </aside>
+</section>
+{% endblock %}

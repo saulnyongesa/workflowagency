@@ -111,6 +111,21 @@ Products can include affiliate commissions when enabled. Product commissions may
 Users must not resell, leak, or redistribute paid digital content unless the product page clearly allows it.""",
     },
     {
+        "title": "Chat, Swahili Teaching, and AI Training Policy",
+        "slug": "chat-swahili-and-ai-training-policy",
+        "policy_type": PolicyPage.PolicyType.OTHER,
+        "summary": "Rules for paid chat sessions, Swahili teaching tasks, AI training tasks, safety, and offline availability notices.",
+        "body": """Chat sessions are earning opportunities where users may be paid for approved conversation work. If a chat partner is offline, the system can save the message and notify the user when the partner is available again.
+
+Users should keep chat messages respectful, non-abusive, and relevant to the stated prompt. Personal data, harassment, explicit content, spam, impersonation, and attempts to move users outside approved platform flows are not allowed.
+
+Swahili teaching tasks should be simple, accurate, and helpful for beginner learners. Users should avoid offensive language, false translations, or copied answers that do not match the lesson prompt.
+
+AI training tasks may ask users to rate answers, label content, compare responses, rewrite prompts, or identify safety issues. Users should follow the instructions carefully and submit honest evaluations.
+
+Chat, language, and AI training rewards are payable only when the task or session is approved under the active review rules. Offline availability notices do not automatically create wallet rewards.""",
+    },
+    {
         "title": "Support and Dispute Policy",
         "slug": "support-and-dispute-policy",
         "policy_type": PolicyPage.PolicyType.SUPPORT,
@@ -195,6 +210,31 @@ FAQS = [
         "Job claiming may be paused during client approval, campaign review, maintenance, or safety checks. Published jobs can return once claiming is enabled again.",
     ),
     (
+        "Chat",
+        "How does chat and earn work?",
+        "Users can open a chat partner profile, follow the conversation prompt, and send a message. If the partner is offline, the message is saved for later.",
+    ),
+    (
+        "Chat",
+        "Do chat messages pay immediately?",
+        "No. Wallet rewards should only be posted when eligible chat sessions are reviewed and approved.",
+    ),
+    (
+        "Chat",
+        "Why are chat sessions disabled?",
+        "Admin can pause chat sessions globally during review, maintenance, or when no approved chat work is available.",
+    ),
+    (
+        "Swahili Teaching",
+        "What are Swahili teaching tasks?",
+        "These tasks ask users to help foreign learners practice simple Swahili greetings, phrases, pronunciation, or short conversations.",
+    ),
+    (
+        "AI Training",
+        "What are AI training tasks?",
+        "AI training tasks may ask users to compare answers, label quality, rewrite prompts, rate safety, or explain why one response is better.",
+    ),
+    (
         "Wallet",
         "What is available balance?",
         "Available balance is money currently usable for eligible purchases or withdrawal requests, subject to minimum withdrawal and platform rules.",
@@ -256,6 +296,10 @@ FAQS = [
     ),
 ]
 
+LEGACY_FAQ_QUESTIONS = [
+    "Do prototype chat messages pay immediately?",
+]
+
 
 class Command(BaseCommand):
     help = "Seed public support policies and FAQs for the prototype."
@@ -270,6 +314,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         updater = self._updater(options["updated_by"])
+        FAQ.objects.filter(question__in=LEGACY_FAQ_QUESTIONS).delete()
         if options["reset"]:
             FAQ.objects.filter(question__in=[question for _, question, _ in FAQS]).delete()
             PolicyPage.objects.filter(slug__in=[policy["slug"] for policy in POLICIES]).delete()

@@ -5,12 +5,21 @@ from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.db.models import F, Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from .forms import JobSubmissionForm, RejectionForm
-from .models import Job, JobCategory, JobClaim, JobSubmission
-from .services import approve_submission, claim_job, clone_job_as_new, reject_submission, submit_job_proof
+from core.services import get_finance_settings
+from .forms import ChatMessageForm, JobSubmissionForm, RejectionForm
+from .models import ChatProfile, ChatThread, Job, JobCategory, JobClaim, JobSubmission
+from .services import (
+    approve_submission,
+    claim_job,
+    clone_job_as_new,
+    reject_submission,
+    send_chat_message,
+    submit_job_proof,
+)
 
 
 @login_required
@@ -107,6 +116,75 @@ def job_submission_detail(request, submission_id):
 def my_jobs(request):
     claims = request.user.job_claims.select_related("job", "job__category").all()
     return render(request, "jobs/my_jobs.html", {"claims": claims})
+
+
+@login_required
+def chat_lobby(request):
+    finance_settings = get_finance_settings()
+    profiles = ChatProfile.objects.filter(is_active=True)
+    recent_threads = request.user.chat_threads.select_related("profile")[:5]
+    earning_tracks = [
+        {
+            "title": "Teach foreigners Swahili",
+            "description": "Help international learners practice greetings, daily phrases, pronunciation, and simple conversations.",
+            "url": f"{reverse('job_list')}?type={Job.JobType.SWAHILI_TEACHING}",
+            "icon": "languages",
+        },
+        {
+            "title": "Train AI systems",
+            "description": "Label responses, compare answers, rewrite prompts, and improve AI assistant quality through structured tasks.",
+            "url": f"{reverse('job_list')}?type={Job.JobType.AI_TRAINING}",
+            "icon": "bot",
+        },
+    ]
+    return render(
+        request,
+        "jobs/chat_lobby.html",
+        {
+            "profiles": profiles,
+            "recent_threads": recent_threads,
+            "finance_settings": finance_settings,
+            "earning_tracks": earning_tracks,
+        },
+    )
+
+
+@login_required
+def chat_thread(request, profile_id):
+    profile = get_object_or_404(ChatProfile, pk=profile_id, is_active=True)
+    finance_settings = get_finance_settings()
+    thread = (
+        ChatThread.objects.filter(user=request.user, profile=profile)
+        .prefetch_related("messages")
+        .order_by("-last_message_at")
+        .first()
+    )
+    form = ChatMessageForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        try:
+            thread = send_chat_message(
+                profile=profile,
+                user=request.user,
+                body=form.cleaned_data["body"],
+            )
+        except ValidationError as exc:
+            form.add_error(None, exc.messages[0] if hasattr(exc, "messages") else str(exc))
+        else:
+            messages.info(request, f"{profile.display_name} is offline. We saved your message.")
+            return redirect("chat_thread", profile_id=profile.pk)
+
+    chat_messages = thread.messages.all() if thread else []
+    return render(
+        request,
+        "jobs/chat_thread.html",
+        {
+            "profile": profile,
+            "thread": thread,
+            "chat_messages": chat_messages,
+            "form": form,
+            "finance_settings": finance_settings,
+        },
+    )
 
 
 @staff_member_required

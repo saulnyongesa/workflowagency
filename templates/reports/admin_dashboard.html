@@ -26,6 +26,17 @@
                 <button class="btn btn-success" type="submit">Enable jobs</button>
             {% endif %}
         </form>
+        <form method="post" action="{% url 'admin_toggle_chat_sessions' %}" data-no-loading="true">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            {% if finance_settings.chat_sessions_enabled %}
+                <input type="hidden" name="chat_sessions_enabled" value="0">
+                <button class="btn btn-warning" type="submit">Disable chat</button>
+            {% else %}
+                <input type="hidden" name="chat_sessions_enabled" value="1">
+                <button class="btn btn-success" type="submit">Enable chat</button>
+            {% endif %}
+        </form>
     </div>
 </section>
 
@@ -73,6 +84,10 @@
                 <span>Job claiming</span>
                 <strong>{% if finance_settings.job_claims_enabled %}Enabled{% else %}Disabled{% endif %}</strong>
             </div>
+            <div>
+                <span>Chat sessions</span>
+                <strong>{% if finance_settings.chat_sessions_enabled %}Enabled{% else %}Disabled{% endif %}</strong>
+            </div>
         </div>
     </div>
 
@@ -116,6 +131,11 @@
             <i data-lucide="briefcase-business"></i>
             <strong>Jobs</strong>
             <span>Create jobs, edit rewards, publish or pause campaigns.</span>
+        </a>
+        <a class="admin-action-card" href="{% url 'chat_lobby' %}">
+            <i data-lucide="message-circle"></i>
+            <strong>Chat sessions</strong>
+            <span>Preview chat partners, offline replies, and chat earning flow.</span>
         </a>
         <a class="admin-action-card" href="{% url 'admin_products_manager' %}">
             <i data-lucide="shopping-bag"></i>

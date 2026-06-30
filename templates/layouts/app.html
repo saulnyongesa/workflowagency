@@ -29,6 +29,7 @@
         <nav class="sidebar-nav" aria-label="Main dashboard navigation">
             <a href="{% url 'dashboard' %}"><span><i data-lucide="layout-dashboard"></i>Dashboard</span></a>
             <a href="{% url 'job_list' %}"><span><i data-lucide="briefcase-business"></i>Jobs</span></a>
+            <a href="{% url 'chat_lobby' %}"><span><i data-lucide="message-circle"></i>Chat</span></a>
             <a href="{% url 'my_jobs' %}"><span><i data-lucide="clipboard-check"></i>My jobs</span></a>
             <a href="{% url 'wallet_dashboard' %}"><span><i data-lucide="wallet"></i>Wallet</span></a>
             <a href="{% url 'withdrawal_request' %}"><span><i data-lucide="send"></i>Withdraw</span></a>
@@ -103,6 +104,7 @@
     <nav class="mobile-tabbar" aria-label="Mobile dashboard navigation">
         <a href="{% url 'dashboard' %}">Home</a>
         <a href="{% url 'job_list' %}">Jobs</a>
+        <a href="{% url 'chat_lobby' %}">Chat</a>
         <a href="{% url 'wallet_dashboard' %}">Wallet</a>
         <a href="{% url 'product_list' %}">Store</a>
         <a href="{% url 'profile' %}">Profile</a>

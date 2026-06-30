@@ -8,8 +8,8 @@ from django.utils import timezone
 
 from core.services import get_finance_settings
 from wallets.services import get_wallet
-from .models import Job, JobCategory, JobClaim, JobSubmission
-from .services import approve_submission, claim_job, reject_submission, submit_job_proof
+from .models import ChatMessage, ChatProfile, ChatThread, Job, JobCategory, JobClaim, JobSubmission
+from .services import approve_submission, claim_job, reject_submission, send_chat_message, submit_job_proof
 
 
 User = get_user_model()
@@ -55,6 +55,15 @@ class JobMarketplaceTests(TestCase):
             proof_type=Job.ProofType.TEXT,
             starts_at=timezone.now(),
             created_by=self.admin,
+        )
+        self.chat_profile = ChatProfile.objects.create(
+            display_name="Emily Carter",
+            country="United Kingdom",
+            headline="Friendly conversation partner.",
+            bio="Chat profile.",
+            topic_prompt="Ask about travel.",
+            avatar_initials="EC",
+            rate_per_message=Decimal("12.00"),
         )
 
     def test_job_list_renders_open_jobs(self):
@@ -180,3 +189,47 @@ class JobMarketplaceTests(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(JobSubmission.objects.filter(user=self.user).count(), 1)
+
+    def test_chat_lobby_renders_profiles_and_special_tracks(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("chat_lobby"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Emily Carter")
+        self.assertContains(response, "Teach foreigners Swahili")
+        self.assertContains(response, "Train AI systems")
+
+    def test_chat_message_records_offline_reply(self):
+        thread = send_chat_message(
+            profile=self.chat_profile,
+            user=self.user,
+            body="Hello, how are you?",
+        )
+
+        self.assertEqual(thread.status, ChatThread.Status.OFFLINE)
+        self.assertEqual(thread.messages.count(), 2)
+        self.assertTrue(
+            ChatMessage.objects.filter(thread=thread, sender=ChatMessage.Sender.SYSTEM, body__icontains="offline").exists()
+        )
+
+    def test_disabled_chat_sessions_block_active_users(self):
+        settings_obj = get_finance_settings()
+        settings_obj.chat_sessions_enabled = False
+        settings_obj.save(update_fields=["chat_sessions_enabled", "updated_at"])
+
+        with self.assertRaisesMessage(ValidationError, "Chat sessions are temporarily unavailable."):
+            send_chat_message(profile=self.chat_profile, user=self.user, body="Hello")
+
+    def test_chat_thread_post_shows_offline_reply(self):
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            reverse("chat_thread", kwargs={"profile_id": self.chat_profile.pk}),
+            {"body": "Hi Emily"},
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "offline")
+        self.assertEqual(ChatThread.objects.filter(user=self.user, profile=self.chat_profile).count(), 1)

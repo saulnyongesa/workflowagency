@@ -1,6 +1,31 @@
 from django import forms
 
-from .models import JobSubmission
+from .models import ChatMessage, JobSubmission
+
+
+class ChatMessageForm(forms.ModelForm):
+    class Meta:
+        model = ChatMessage
+        fields = ("body",)
+        widgets = {
+            "body": forms.Textarea(
+                attrs={
+                    "rows": 3,
+                    "placeholder": "Write a friendly message...",
+                }
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["body"].widget.attrs["class"] = "form-control"
+        self.fields["body"].label = "Message"
+
+    def clean_body(self):
+        body = self.cleaned_data["body"].strip()
+        if len(body) < 2:
+            raise forms.ValidationError("Message is too short.")
+        return body
 
 
 class JobSubmissionForm(forms.ModelForm):

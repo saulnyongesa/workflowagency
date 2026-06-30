@@ -5,6 +5,8 @@ from . import views
 urlpatterns = [
     path("", views.job_list, name="job_list"),
     path("mine/", views.my_jobs, name="my_jobs"),
+    path("chat/", views.chat_lobby, name="chat_lobby"),
+    path("chat/<int:profile_id>/", views.chat_thread, name="chat_thread"),
     path("review/", views.review_queue, name="review_queue"),
     path("review/<int:submission_id>/approve/", views.approve_submission_view, name="approve_submission"),
     path("review/<int:submission_id>/reject/", views.reject_submission_view, name="reject_submission"),

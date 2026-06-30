@@ -1,0 +1,107 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Chat & Earn | Workflow Agency{% endblock %}
+{% block eyebrow %}Chat work{% endblock %}
+{% block page_title %}Chat & earn{% endblock %}
+
+{% block app_content %}
+<section class="hero-dashboard chat-hero">
+    <div>
+        <span class="eyebrow">Conversation tasks</span>
+        <h2>Chat with international partners, teach Swahili, and support AI training tasks.</h2>
+        <p>Start friendly conversations, practice language support, and complete structured chat-based tasks when partners are available.</p>
+    </div>
+    <div class="chat-status-box">
+        <span>Chat sessions</span>
+        <strong>{% if finance_settings.chat_sessions_enabled %}Enabled{% else %}Paused{% endif %}</strong>
+    </div>
+</section>
+
+{% if not finance_settings.chat_sessions_enabled %}
+    <div class="alert alert-warning">Chat sessions are temporarily unavailable. Please check again later.</div>
+{% elif request.user.status != "active" %}
+    <div class="alert alert-warning">Activate your account before opening paid chat sessions.</div>
+{% endif %}
+
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">International chat</span>
+                <h2>Available chat partners</h2>
+            </div>
+        </div>
+        <div class="chat-profile-grid">
+            {% for profile in profiles %}
+                <article class="chat-profile-card">
+                    <div class="chat-avatar">{{ profile.avatar_initials }}</div>
+                    <div>
+                        <span class="job-category">{{ profile.country }}</span>
+                        <h3>{{ profile.display_name }}</h3>
+                        <p>{{ profile.headline }}</p>
+                    </div>
+                    <div class="chat-card-footer">
+                        <span>KES {{ profile.rate_per_message }} per approved chat</span>
+                        <a class="btn btn-sm btn-outline-primary" href="{% url 'chat_thread' profile.pk %}">
+                            <i data-lucide="message-circle"></i>Open
+                        </a>
+                    </div>
+                </article>
+            {% empty %}
+                <div class="empty-state">
+                    <strong>No chat partners published.</strong>
+                    <span>Chat profiles will appear here when available.</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <aside class="panel">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">More earning tracks</span>
+                <h2>Special work</h2>
+            </div>
+        </div>
+        <div class="readiness-list">
+            {% for track in earning_tracks %}
+                <div>
+                    <span><i data-lucide="{{ track.icon }}"></i> Opportunity</span>
+                    <strong>{{ track.title }}</strong>
+                    <p class="text-secondary mb-2">{{ track.description }}</p>
+                    <a class="btn btn-sm btn-outline-primary" href="{{ track.url }}">View jobs</a>
+                </div>
+            {% endfor %}
+        </div>
+    </aside>
+</section>
+
+<section class="panel mt-3">
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">Recent chats</span>
+            <h2>Your conversations</h2>
+        </div>
+    </div>
+    <div class="opportunity-list">
+        {% for thread in recent_threads %}
+            <article class="job-row">
+                <div>
+                    <span class="job-category">{{ thread.get_status_display }}</span>
+                    <h3><a href="{% url 'chat_thread' thread.profile.pk %}">{{ thread.profile.display_name }}</a></h3>
+                    <p>{{ thread.profile.topic_prompt }}</p>
+                </div>
+                <div class="job-payout">
+                    <span>{{ thread.last_message_at|date:"M d, H:i" }}</span>
+                    <a class="btn btn-sm btn-outline-primary mt-2" href="{% url 'chat_thread' thread.profile.pk %}">Continue</a>
+                </div>
+            </article>
+        {% empty %}
+            <div class="empty-state">
+                <strong>No chat history yet.</strong>
+                <span>Open a partner profile and send your first message.</span>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

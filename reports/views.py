@@ -185,6 +185,23 @@ def admin_toggle_job_claims(request):
 
 
 @staff_member_required
+@require_POST
+def admin_toggle_chat_sessions(request):
+    settings_obj = FinanceSettings.load()
+    before_obj = FinanceSettings.objects.get(pk=settings_obj.pk)
+    should_enable = request.POST.get("chat_sessions_enabled") == "1"
+    settings_obj.chat_sessions_enabled = should_enable
+    settings_obj.updated_by = request.user
+    settings_obj.save()
+    _audit_finance_settings_change(request, before_obj, settings_obj)
+    if should_enable:
+        messages.success(request, "Chat sessions enabled.")
+    else:
+        messages.warning(request, "Chat sessions are disabled. Users will see the temporary availability message.")
+    return redirect(request.POST.get("next") or "admin_dashboard")
+
+
+@staff_member_required
 def admin_jobs_manager(request):
     category_form = JobCategoryForm(request.POST or None, prefix="category")
     if request.method == "POST" and request.POST.get("form_type") == "category" and category_form.is_valid():

@@ -36,6 +36,8 @@ class Job(models.Model):
         TRANSLATION = "translation", "Translation"
         PRODUCT_REVIEW = "product_review", "Product review"
         CHAT_SESSION = "chat_session", "Paid chat session"
+        SWAHILI_TEACHING = "swahili_teaching", "Teach Swahili"
+        AI_TRAINING = "ai_training", "AI training"
         PRODUCT_AFFILIATE = "product_affiliate", "Product affiliate"
         OTHER = "other", "Other"
 
@@ -140,6 +142,78 @@ class Job(models.Model):
             and (self.ends_at is None or self.ends_at >= now)
             and self.claims_count < self.worker_limit
         )
+
+
+class ChatProfile(models.Model):
+    display_name = models.CharField(max_length=80)
+    country = models.CharField(max_length=80)
+    headline = models.CharField(max_length=160)
+    bio = models.TextField()
+    topic_prompt = models.CharField(max_length=220)
+    avatar_initials = models.CharField(max_length=4)
+    rate_per_message = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.01"))],
+    )
+    is_active = models.BooleanField(default=True)
+    sort_order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["sort_order", "display_name"]
+        indexes = [
+            models.Index(fields=["is_active", "sort_order"]),
+        ]
+
+    def __str__(self):
+        return f"{self.display_name} ({self.country})"
+
+
+class ChatThread(models.Model):
+    class Status(models.TextChoices):
+        OPEN = "open", "Open"
+        OFFLINE = "offline", "Partner offline"
+        CLOSED = "closed", "Closed"
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="chat_threads")
+    profile = models.ForeignKey(ChatProfile, on_delete=models.PROTECT, related_name="threads")
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.OPEN)
+    last_message_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-last_message_at"]
+        indexes = [
+            models.Index(fields=["user", "-last_message_at"]),
+            models.Index(fields=["profile", "status"]),
+        ]
+
+    def __str__(self):
+        return f"{self.user} chat with {self.profile}"
+
+
+class ChatMessage(models.Model):
+    class Sender(models.TextChoices):
+        USER = "user", "User"
+        SYSTEM = "system", "System"
+        PARTNER = "partner", "Partner"
+
+    thread = models.ForeignKey(ChatThread, on_delete=models.CASCADE, related_name="messages")
+    sender = models.CharField(max_length=20, choices=Sender.choices)
+    body = models.TextField()
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
+
+    class Meta:
+        ordering = ["created_at"]
+        indexes = [
+            models.Index(fields=["thread", "created_at"]),
+        ]
+
+    def __str__(self):
+        return f"{self.get_sender_display()} message in {self.thread_id}"
 
 
 class JobClaim(models.Model):
